@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+   version="5.0"
+   metadata-complete="true">
+
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>login.jsp</welcome-file>
+    </welcome-file-list>
+
+    <servlet>
+        <servlet-name>LoginServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.LoginServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LoginServlet</servlet-name>
+        <url-pattern>/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AppointmentBookingServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.AppointmentBookingServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AppointmentBookingServlet</servlet-name>
+        <url-pattern>/patient/appointments</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>MyBookingsServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.MyBookingsServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>MyBookingsServlet</servlet-name>
+        <url-pattern>/patient/my-bookings</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>RescheduleServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.RescheduleServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RescheduleServlet</servlet-name>
+        <url-pattern>/patient/reschedule</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>QueueManagementServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.QueueManagementServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>QueueManagementServlet</servlet-name>
+        <url-pattern>/staff/queue</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>NotificationServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.NotificationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>NotificationServlet</servlet-name>
+        <url-pattern>/notifications</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.AdminServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminServlet</servlet-name>
+        <url-pattern>/admin/users</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AdminReportServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.AdminReportServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AdminReportServlet</servlet-name>
+        <url-pattern>/admin/reports</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>CsvImportServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.CsvImportServlet</servlet-class>
+        <multipart-config>
+            <max-file-size>1048576</max-file-size>
+            <max-request-size>2097152</max-request-size>
+            <file-size-threshold>0</file-size-threshold>
+        </multipart-config>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CsvImportServlet</servlet-name>
+        <url-pattern>/admin/csv-import</url-pattern>
+    </servlet-mapping>
+
+</web-app>
