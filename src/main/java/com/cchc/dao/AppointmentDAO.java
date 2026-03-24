@@ -9,7 +9,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class AppointmentDAO {
 
@@ -54,9 +56,7 @@ public class AppointmentDAO {
 
     public List<AppointmentBean> getMyAppointments(int userId) throws SQLException {
         // get data from database
-        String sql = "SELECT a.* FROM appointments a "
-                + "JOIN patient_profiles p ON a.patient_id = p.patient_id "
-                + "WHERE p.user_id = ? ORDER BY a.appointment_date DESC, a.start_time DESC";
+        String sql = "SELECT * FROM appointments WHERE user_id = ? ORDER BY appointment_date DESC, appointment_id DESC";
 
         List<AppointmentBean> list = new ArrayList<>();
 
@@ -76,11 +76,9 @@ public class AppointmentDAO {
 
     public boolean cancelAppointment(int appointmentId, int userId) throws SQLException {
         // simple update
-        String sql = "UPDATE appointments a "
-                + "JOIN patient_profiles p ON a.patient_id = p.patient_id "
-                + "SET a.status = 'CANCELLED' "
-                + "WHERE a.appointment_id = ? AND p.user_id = ? "
-                + "AND a.status NOT IN ('COMPLETED','CANCELLED')";
+        String sql = "UPDATE appointments SET status = 'CANCELLED' "
+            + "WHERE appointment_id = ? AND user_id = ? "
+            + "AND status NOT IN ('COMPLETED','CANCELLED')";
 
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -93,19 +91,29 @@ public class AppointmentDAO {
 
     public boolean updateAppointmentDateAndTime(int appointmentId, int userId, Date newDate, Time newStart, Time newEnd) throws SQLException {
         // simple reschedule for patient
-        String sql = "UPDATE appointments a "
-                + "JOIN patient_profiles p ON a.patient_id = p.patient_id "
-                + "SET a.appointment_date = ?, a.start_time = ?, a.end_time = ? "
-                + "WHERE a.appointment_id = ? AND p.user_id = ? "
-                + "AND a.status NOT IN ('COMPLETED','CANCELLED')";
+        String sql = "UPDATE appointments SET appointment_date = ?, time_slot = ? "
+            + "WHERE appointment_id = ? AND user_id = ? "
+            + "AND status NOT IN ('COMPLETED','CANCELLED')";
 
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
+            String s1 = newStart == null ? "" : newStart.toString();
+            String s2 = newEnd == null ? "" : newEnd.toString();
+            if (s1.length() >= 5) {
+                s1 = s1.substring(0, 5);
+            }
+            if (s2.length() >= 5) {
+                s2 = s2.substring(0, 5);
+            }
+            String slot = s1;
+            if (!s2.isEmpty()) {
+                slot = s1 + "-" + s2;
+            }
+
             ps.setDate(1, newDate);
-            ps.setTime(2, newStart);
-            ps.setTime(3, newEnd);
-            ps.setInt(4, appointmentId);
-            ps.setInt(5, userId);
+            ps.setString(2, slot);
+            ps.setInt(3, appointmentId);
+            ps.setInt(4, userId);
             int row = ps.executeUpdate();
             return row > 0;
         }
@@ -113,27 +121,18 @@ public class AppointmentDAO {
 
     public int create(AppointmentBean appointment) throws SQLException {
         String sql = "INSERT INTO appointments "
-                + "(patient_id, clinic_service_id, assigned_staff_id, appointment_date, start_time, end_time, booking_channel, status, notes, created_by_user_id) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                + "(user_id, clinic_id, service_id, appointment_date, time_slot, status, notes) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         try (Connection connection = DBConnectionUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
-            statement.setInt(1, appointment.getPatientId());
-            statement.setInt(2, appointment.getClinicServiceId());
-
-            if (appointment.getAssignedStaffId() == null) {
-                statement.setNull(3, java.sql.Types.INTEGER);
-            } else {
-                statement.setInt(3, appointment.getAssignedStaffId());
-            }
-
-            statement.setDate(4, appointment.getAppointmentDate());
-            statement.setTime(5, appointment.getStartTime());
-            statement.setTime(6, appointment.getEndTime());
-            statement.setString(7, appointment.getBookingChannel());
-            statement.setString(8, appointment.getStatus());
-            statement.setString(9, appointment.getNotes());
-            statement.setInt(10, appointment.getCreatedByUserId());
+            statement.setInt(1, appointment.getUserId());
+            statement.setInt(2, appointment.getClinicId());
+            statement.setInt(3, appointment.getServiceId());
+            statement.setDate(4, appointment.getAppointmentDate() == null ? null : Date.valueOf(appointment.getAppointmentDate()));
+            statement.setString(5, appointment.getTimeSlot());
+            statement.setString(6, appointment.getStatus());
+            statement.setString(7, appointment.getNotes());
             statement.executeUpdate();
 
             try (ResultSet keys = statement.getGeneratedKeys()) {
@@ -146,8 +145,13 @@ public class AppointmentDAO {
         return 0;
     }
 
+    // simple insert method name as requested
+    public int bookAppointment(AppointmentBean appointment) throws SQLException {
+        return create(appointment);
+    }
+
     public List<AppointmentBean> findByPatientId(int patientId) throws SQLException {
-        String sql = "SELECT * FROM appointments WHERE patient_id = ? ORDER BY appointment_date DESC, start_time DESC";
+        String sql = "SELECT * FROM appointments WHERE user_id = ? ORDER BY appointment_date DESC, appointment_id DESC";
         List<AppointmentBean> list = new ArrayList<>();
 
         try (Connection connection = DBConnectionUtil.getConnection();
@@ -163,11 +167,22 @@ public class AppointmentDAO {
         return list;
     }
 
+    public AppointmentBean findById(int appointmentId) throws SQLException {
+        String sql = "SELECT * FROM appointments WHERE appointment_id = ?";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, appointmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     public List<AppointmentBean> findByClinicAndDate(int clinicId, Date appointmentDate) throws SQLException {
-        String sql = "SELECT a.* FROM appointments a "
-                + "JOIN clinic_services cs ON a.clinic_service_id = cs.clinic_service_id "
-                + "WHERE cs.clinic_id = ? AND a.appointment_date = ? "
-                + "ORDER BY a.start_time";
+        String sql = "SELECT * FROM appointments WHERE clinic_id = ? AND appointment_date = ? ORDER BY appointment_id";
         List<AppointmentBean> list = new ArrayList<>();
 
         try (Connection connection = DBConnectionUtil.getConnection();
@@ -184,6 +199,140 @@ public class AppointmentDAO {
         return list;
     }
 
+    // simple shared method for staff approval page - shows BOOKED and PENDING
+    public List<AppointmentBean> getAllBookingsForStaff(int clinicId) throws SQLException {
+        String sql = "SELECT * FROM appointments WHERE clinic_id = ? AND status IN ('BOOKED', 'PENDING') ORDER BY appointment_date ASC, appointment_id ASC";
+        List<AppointmentBean> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+
+        return list;
+    }
+
+    // simple shared method for staff attendance/queue page
+    public List<AppointmentBean> getTodayAppointments(int clinicId) throws SQLException {
+        String sql = "SELECT * FROM appointments WHERE clinic_id = ? AND appointment_date = CURDATE() ORDER BY appointment_id ASC";
+        List<AppointmentBean> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+
+        return list;
+    }
+
+    // simple approval list for staff
+    public List<AppointmentBean> findPendingByClinic(int clinicId) throws SQLException {
+        return getAllBookingsForStaff(clinicId);
+    }
+
+    // simple staff action
+    public boolean approveBooking(int appointmentId) throws SQLException {
+        String sql = "UPDATE appointments SET status = 'CONFIRMED' WHERE appointment_id = ? AND status = 'BOOKED'";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, appointmentId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // simple staff action
+    public boolean rejectBooking(int appointmentId, String reason) throws SQLException {
+        String sql = "UPDATE appointments SET status = 'REJECTED', notes = CONCAT(IFNULL(notes,''), ' [Rejected: ', ?, ']') "
+            + "WHERE appointment_id = ? AND status = 'BOOKED'";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, reason == null ? "No reason" : reason);
+            ps.setInt(2, appointmentId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    // simple policy check for booking
+    public int countActiveBookingsByPatient(int patientId) throws SQLException {
+        String sql = "SELECT COUNT(*) c FROM appointments WHERE user_id = ? "
+                + "AND status IN ('BOOKED','CONFIRMED','PENDING')";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, patientId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("c");
+                }
+            }
+        }
+        return 0;
+    }
+
+    // simple limited quota check for booking
+    public int countByClinicServiceAndDate(int clinicServiceId, Date d) throws SQLException {
+        String sql = "SELECT COUNT(*) c FROM appointments WHERE service_id = ? AND appointment_date = ? "
+                + "AND status IN ('BOOKED','CONFIRMED','PENDING')";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicServiceId);
+            ps.setDate(2, d);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("c");
+                }
+            }
+        }
+        return 0;
+    }
+
+    public int countByClinicAndServiceAndDate(int clinicId, int serviceId, Date d) throws SQLException {
+        String sql = "SELECT COUNT(*) c FROM appointments WHERE clinic_id = ? AND service_id = ? AND appointment_date = ? "
+                + "AND status IN ('BOOKED','CONFIRMED','PENDING')";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicId);
+            ps.setInt(2, serviceId);
+            ps.setDate(3, d);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("c");
+                }
+            }
+        }
+        return 0;
+    }
+
+    // simple slot quota check for staff approval
+    public int countByClinicServiceDateAndSlotExcluding(int clinicId, int serviceId, Date d, String timeSlot, int excludeAppointmentId) throws SQLException {
+        String sql = "SELECT COUNT(*) c FROM appointments WHERE clinic_id = ? AND service_id = ? "
+                + "AND appointment_date = ? AND time_slot = ? AND appointment_id <> ? "
+                + "AND status IN ('BOOKED','CONFIRMED','ARRIVED','COMPLETED')";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicId);
+            ps.setInt(2, serviceId);
+            ps.setDate(3, d);
+            ps.setString(4, timeSlot);
+            ps.setInt(5, excludeAppointmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("c");
+                }
+            }
+        }
+        return 0;
+    }
+
     public boolean updateStatus(int appointmentId, String status) throws SQLException {
         String sql = "UPDATE appointments SET status = ? WHERE appointment_id = ?";
         try (Connection connection = DBConnectionUtil.getConnection();
@@ -194,22 +343,78 @@ public class AppointmentDAO {
         }
     }
 
+    public boolean cancelByClinic(int appointmentId, String reason) throws SQLException {
+        String sql = "UPDATE appointments SET status = 'CANCELLED', notes = CONCAT(IFNULL(notes,''), ' [Cancelled by clinic: ', ?, ']') "
+                + "WHERE appointment_id = ? AND status NOT IN ('COMPLETED','CANCELLED')";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, reason == null || reason.isEmpty() ? "No reason" : reason);
+            ps.setInt(2, appointmentId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    public Set<String> getBookedStartTimes(int clinicId, Date appointmentDate) throws SQLException {
+        String sql = "SELECT time_slot FROM appointments WHERE clinic_id = ? AND appointment_date = ? "
+                + "AND status IN ('BOOKED','CONFIRMED','PENDING','ARRIVED')";
+        Set<String> set = new HashSet<>();
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicId);
+            ps.setDate(2, appointmentDate);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String slot = rs.getString("time_slot");
+                    if (slot != null && slot.contains("-")) {
+                        set.add(slot.split("-")[0]);
+                    } else if (slot != null && !slot.isEmpty()) {
+                        set.add(slot);
+                    }
+                }
+            }
+        }
+
+        return set;
+    }
+
+    // simple notification system - get tomorrow appointments for a patient
+    public List<AppointmentBean> getTomorrowAppointments(int patientId) throws SQLException {
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.add(java.util.Calendar.DATE, 1);
+        Date tomorrow = new Date(cal.getTimeInMillis());
+
+        String sql = "SELECT * FROM appointments WHERE user_id = ? AND appointment_date = ? "
+                + "AND status NOT IN ('CANCELLED','COMPLETED','NO_SHOW')";
+        List<AppointmentBean> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, patientId);
+            ps.setDate(2, tomorrow);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
     private AppointmentBean mapRow(ResultSet rs) throws SQLException {
         AppointmentBean bean = new AppointmentBean();
         bean.setAppointmentId(rs.getInt("appointment_id"));
-        bean.setPatientId(rs.getInt("patient_id"));
-        bean.setClinicServiceId(rs.getInt("clinic_service_id"));
-        int assignedStaffId = rs.getInt("assigned_staff_id");
-        bean.setAssignedStaffId(rs.wasNull() ? null : assignedStaffId);
-        bean.setAppointmentDate(rs.getDate("appointment_date"));
-        bean.setStartTime(rs.getTime("start_time"));
-        bean.setEndTime(rs.getTime("end_time"));
-        bean.setBookingChannel(rs.getString("booking_channel"));
+        bean.setUserId(rs.getInt("user_id"));
+        bean.setClinicId(rs.getInt("clinic_id"));
+        bean.setServiceId(rs.getInt("service_id"));
+        Date d = rs.getDate("appointment_date");
+        if (d != null) {
+            bean.setAppointmentDate(d.toLocalDate());
+        }
+        bean.setTimeSlot(rs.getString("time_slot"));
         bean.setStatus(rs.getString("status"));
         bean.setNotes(rs.getString("notes"));
-        bean.setCreatedByUserId(rs.getInt("created_by_user_id"));
         bean.setCreatedAt(rs.getTimestamp("created_at"));
-        bean.setUpdatedAt(rs.getTimestamp("updated_at"));
         return bean;
     }
 }

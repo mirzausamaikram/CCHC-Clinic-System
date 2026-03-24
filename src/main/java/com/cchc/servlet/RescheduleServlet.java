@@ -1,6 +1,7 @@
 package com.cchc.servlet;
 
 import com.cchc.dao.AppointmentDAO;
+import com.cchc.dao.SystemSettingDAO;
 import com.cchc.model.AppointmentBean;
 import com.cchc.model.UserBean;
 import jakarta.servlet.ServletException;
@@ -13,10 +14,12 @@ import java.sql.Date;
 import java.sql.SQLException;
 import java.sql.Time;
 import java.util.List;
+import java.util.Set;
 
 public class RescheduleServlet extends HttpServlet {
 
     private AppointmentDAO dao = new AppointmentDAO();
+    private SystemSettingDAO setDao = new SystemSettingDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -114,6 +117,39 @@ public class RescheduleServlet extends HttpServlet {
             Date newDate = Date.valueOf(dateStr);
             Time newStart = Time.valueOf(parts[0] + ":00");
             Time newEnd = Time.valueOf(parts[1] + ":00");
+
+            AppointmentBean current = dao.findById(id);
+            if (current == null || current.getUserId() != user.getUserId()) {
+                response.sendRedirect(request.getContextPath() + "/patient/my-bookings?msg=Booking+not+found");
+                return;
+            }
+
+            int cutHours = 24;
+            try {
+                String x = setDao.getValue("cancellationCutoffHours");
+                if (x != null && !x.isEmpty()) {
+                    cutHours = Integer.parseInt(x);
+                }
+            } catch (Exception ex) {
+                cutHours = 24;
+            }
+
+            if (current.getAppointmentDate() != null && current.getStartTime() != null) {
+                java.time.LocalDateTime oldAppt = java.time.LocalDateTime.of(current.getAppointmentDate(), current.getStartTime().toLocalTime());
+                long hrs = java.time.Duration.between(java.time.LocalDateTime.now(), oldAppt).toHours();
+                if (hrs < cutHours) {
+                    response.sendRedirect(request.getContextPath() + "/patient/my-bookings?msg=Reschedule+not+allowed+(cutoff+rule)");
+                    return;
+                }
+            }
+
+            Set<String> booked = dao.getBookedStartTimes(current.getClinicId(), newDate);
+            String newStartStr = parts[0];
+            String oldStartStr = current.getStartTime() != null ? current.getStartTime().toString().substring(0, 5) : "";
+            if (!newStartStr.equals(oldStartStr) && booked.contains(newStartStr)) {
+                response.sendRedirect(request.getContextPath() + "/patient/my-bookings?msg=Slot+already+taken");
+                return;
+            }
 
             boolean ok = dao.updateAppointmentDateAndTime(id, user.getUserId(), newDate, newStart, newEnd);
             if (ok) {

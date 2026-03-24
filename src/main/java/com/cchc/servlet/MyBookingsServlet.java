@@ -1,7 +1,10 @@
 package com.cchc.servlet;
 
 import com.cchc.dao.AppointmentDAO;
+import com.cchc.dao.NotificationDAO;
+import com.cchc.dao.SystemSettingDAO;
 import com.cchc.model.AppointmentBean;
+import com.cchc.model.NotificationBean;
 import com.cchc.model.UserBean;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,6 +20,8 @@ import java.util.List;
 public class MyBookingsServlet extends HttpServlet {
 
     private AppointmentDAO dao = new AppointmentDAO();
+    private NotificationDAO nDao = new NotificationDAO();
+    private SystemSettingDAO setDao = new SystemSettingDAO();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -56,7 +61,6 @@ public class MyBookingsServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // TODO: finish this later
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -70,18 +74,54 @@ public class MyBookingsServlet extends HttpServlet {
         try {
             id = Integer.parseInt(idStr);
         } catch (Exception e) {
-            // not sure if this works
             id = 0;
         }
 
         if (id > 0) {
             try {
+                AppointmentBean a = dao.findById(id);
+                int cutHours = 24;
+                try {
+                    String x = setDao.getValue("cancellationCutoffHours");
+                    if (x != null && !x.isEmpty()) {
+                        cutHours = Integer.parseInt(x);
+                    }
+                } catch (Exception ex) {
+                    cutHours = 24;
+                }
+
+                boolean allow = true;
+                if (a != null && a.getAppointmentDate() != null && a.getStartTime() != null) {
+                    java.time.LocalDateTime apptTime = java.time.LocalDateTime.of(a.getAppointmentDate(), a.getStartTime().toLocalTime());
+                    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                    long hrs = java.time.Duration.between(now, apptTime).toHours();
+                    if (hrs < cutHours) {
+                        allow = false;
+                    }
+                }
+
+                if (!allow) {
+                    request.getSession().setAttribute("msg", "Cancellation not allowed (cutoff rule)");
+                    response.sendRedirect(request.getContextPath() + "/my_appointments");
+                    return;
+                }
+
                 dao.cancelAppointment(id, user.getUserId());
+                // simple notification system - appointment cancelled
+                NotificationBean nb = new NotificationBean();
+                nb.setUserId(user.getUserId());
+                nb.setTitle("Appointment Cancelled");
+                nb.setMessage("Your appointment has been cancelled.");
+                nb.setNotificationType("Appointment Cancelled");
+                nb.setRelatedAppointmentId(id);
+                nb.setRead(false);
+                nDao.create(nb);
             } catch (SQLException e) {
                 // ignore for now
             }
         }
 
-        response.sendRedirect(request.getContextPath() + "/patient/my-bookings");
+        request.getSession().setAttribute("msg", "Appointment cancelled");
+        response.sendRedirect(request.getContextPath() + "/my_appointments");
     }
 }

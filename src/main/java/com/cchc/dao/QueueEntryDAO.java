@@ -60,6 +60,28 @@ public class QueueEntryDAO {
         return 0;
     }
 
+    // simple duplicate check
+    public boolean hasActiveTicket(int userId, int clinicId, int serviceId, Date today) throws SQLException {
+        String sql = "SELECT COUNT(*) c FROM queue_entries q "
+                + "JOIN patient_profiles p ON q.patient_id = p.patient_id "
+                + "WHERE p.user_id = ? AND q.clinic_id = ? AND q.service_id = ? AND q.queue_date = ? "
+                + "AND q.queue_status IN ('WAITING','CALLED','IN_SERVICE')";
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, clinicId);
+            ps.setInt(3, serviceId);
+            ps.setDate(4, today);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("c") > 0;
+                }
+            }
+        }
+        return false;
+    }
+
     public List<QueueEntryBean> findWaitingByClinicAndDate(int clinicId, Date queueDate) throws SQLException {
         String sql = "SELECT * FROM queue_entries WHERE clinic_id = ? AND queue_date = ? "
                 + "AND queue_status IN ('WAITING','CALLED','IN_SERVICE') ORDER BY priority_level DESC, token_no ASC";
@@ -79,6 +101,20 @@ public class QueueEntryDAO {
         return list;
     }
 
+    public QueueEntryBean findById(int queueId) throws SQLException {
+        String sql = "SELECT * FROM queue_entries WHERE queue_id = ?";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, queueId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     public boolean updateQueueStatus(int queueId, String queueStatus) throws SQLException {
         String sql = "UPDATE queue_entries SET queue_status = ? WHERE queue_id = ?";
         try (Connection connection = DBConnectionUtil.getConnection();
@@ -87,6 +123,68 @@ public class QueueEntryDAO {
             statement.setInt(2, queueId);
             return statement.executeUpdate() > 0;
         }
+    }
+
+    // simple queue management - get today waiting queue for clinic
+    public List<QueueEntryBean> getWaitingQueue(int clinicId) throws SQLException {
+        Date today = new Date(System.currentTimeMillis());
+        String sql = "SELECT * FROM queue_entries WHERE clinic_id = ? AND queue_date = ? "
+            + "AND queue_status IN ('WAITING','CALLED','IN_SERVICE','MISSED') ORDER BY priority_level DESC, token_no ASC";
+        List<QueueEntryBean> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicId);
+            ps.setDate(2, today);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    // simple queue management - update status by queue id
+    public boolean updateStatus(int queueId, String status) throws SQLException {
+        return updateQueueStatus(queueId, status);
+    }
+
+    // simple queue management - get next waiting entry (lowest token_no, WAITING)
+    public QueueEntryBean getNextQueueNumber(int clinicId) throws SQLException {
+        Date today = new Date(System.currentTimeMillis());
+        String sql = "SELECT * FROM queue_entries WHERE clinic_id = ? AND queue_date = ? "
+                + "AND queue_status = 'WAITING' ORDER BY priority_level DESC, token_no ASC LIMIT 1";
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicId);
+            ps.setDate(2, today);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+        return null;
+    }
+
+    // patient queue status for today
+    public List<QueueEntryBean> findByPatientAndDate(int patientId, Date queueDate) throws SQLException {
+        String sql = "SELECT * FROM queue_entries WHERE patient_id = ? AND queue_date = ? ORDER BY token_no ASC";
+        List<QueueEntryBean> list = new ArrayList<>();
+
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, patientId);
+            ps.setDate(2, queueDate);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
     }
 
     private QueueEntryBean mapRow(ResultSet rs) throws SQLException {

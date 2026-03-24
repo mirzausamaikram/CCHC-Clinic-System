@@ -44,6 +44,35 @@ public class StaffProfileDAO {
         return list;
     }
 
+    public boolean upsertClinicForUser(int userId, int clinicId, String fullName) throws SQLException {
+        StaffProfileBean existing = findByUserId(userId);
+        if (existing == null) {
+            return createSimple(userId, clinicId, fullName);
+        }
+        String sql = "UPDATE staff_profiles SET clinic_id = ?, full_name = ? WHERE user_id = ?";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, clinicId);
+            ps.setString(2, fullName == null || fullName.isEmpty() ? ("Staff #" + userId) : fullName);
+            ps.setInt(3, userId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
+    private boolean createSimple(int userId, int clinicId, String fullName) throws SQLException {
+        String sql = "INSERT INTO staff_profiles (user_id, clinic_id, employee_no, full_name, phone, position_title) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, clinicId);
+            ps.setString(3, "EMP-U" + userId);
+            ps.setString(4, fullName == null || fullName.isEmpty() ? ("Staff #" + userId) : fullName);
+            ps.setString(5, "-");
+            ps.setString(6, "Staff");
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     private StaffProfileBean mapRow(ResultSet rs) throws SQLException {
         StaffProfileBean profile = new StaffProfileBean();
         profile.setStaffId(rs.getInt("staff_id"));

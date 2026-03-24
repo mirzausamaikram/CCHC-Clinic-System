@@ -1,6 +1,12 @@
 package com.cchc.servlet;
 
 import com.cchc.dao.UserDAO;
+import com.cchc.dao.AppointmentDAO;
+import com.cchc.dao.NotificationDAO;
+import com.cchc.dao.PatientProfileDAO;
+import com.cchc.model.AppointmentBean;
+import com.cchc.model.NotificationBean;
+import com.cchc.model.PatientProfileBean;
 import com.cchc.model.UserBean;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -10,6 +16,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.List;
 
 @WebServlet(name = "LoginServlet", urlPatterns = {"/login"})
 public class LoginServlet extends HttpServlet {
@@ -60,6 +67,31 @@ public class LoginServlet extends HttpServlet {
 
             switch (roleName) {
                 case "PATIENT":
+                    // simple notification system - check tomorrow appointments and create reminder
+                    try {
+                        PatientProfileDAO ppDao = new PatientProfileDAO();
+                        PatientProfileBean pp = ppDao.findByUserId(user.getUserId());
+                        if (pp != null) {
+                            AppointmentDAO apptDao = new AppointmentDAO();
+                            NotificationDAO nDao = new NotificationDAO();
+                            List<AppointmentBean> tomorrowList = apptDao.getTomorrowAppointments(user.getUserId());
+                            for (int i = 0; i < tomorrowList.size(); i++) {
+                                AppointmentBean a = tomorrowList.get(i);
+                                if (!nDao.reminderExists(user.getUserId(), a.getAppointmentId())) {
+                                    NotificationBean nb = new NotificationBean();
+                                    nb.setUserId(user.getUserId());
+                                    nb.setTitle("Reminder for upcoming appointment");
+                                    nb.setMessage("Reminder: you have an appointment tomorrow on " + a.getAppointmentDate() + " at " + a.getStartTime());
+                                    nb.setNotificationType("Reminder for upcoming appointment");
+                                    nb.setRelatedAppointmentId(a.getAppointmentId());
+                                    nb.setRead(false);
+                                    nDao.create(nb);
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        // ignore for now
+                    }
                     response.sendRedirect(request.getContextPath() + "/patient/dashboard.jsp");
                     break;
                 case "STAFF":

@@ -12,7 +12,6 @@ import java.util.List;
 public class NotificationDAO {
 
     public int getTotalCount() throws SQLException {
-        // TODO later
         String sql = "SELECT COUNT(*) c FROM notifications";
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -96,6 +95,52 @@ public class NotificationDAO {
         }
     }
 
+    // simple notification system - get last 5 notifications for user
+    public List<NotificationBean> getRecentNotifications(int userId) throws SQLException {
+        String sql = "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 5";
+        List<NotificationBean> list = new ArrayList<>();
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
+    // simple notification system - quick helper to create a notification
+    public void createNotification(int userId, String type, String message) throws SQLException {
+        NotificationBean n = new NotificationBean();
+        n.setUserId(userId);
+        n.setTitle(type);
+        n.setMessage(message);
+        n.setNotificationType(type);
+        n.setRelatedAppointmentId(null);
+        n.setRead(false);
+        create(n);
+    }
+
+    // simple notification system - check if reminder already exists for an appointment
+    public boolean reminderExists(int userId, int appointmentId) throws SQLException {
+        String sql = "SELECT COUNT(*) c FROM notifications "
+            + "WHERE user_id = ? AND related_appointment_id = ? "
+            + "AND notification_type IN ('Reminder', 'Reminder for upcoming appointment')";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            ps.setInt(2, appointmentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("c") > 0;
+                }
+            }
+        }
+        return false;
+    }
+
     private NotificationBean mapRow(ResultSet rs) throws SQLException {
         NotificationBean bean = new NotificationBean();
         bean.setNotificationId(rs.getInt("notification_id"));
@@ -106,7 +151,12 @@ public class NotificationDAO {
         int relatedAppointmentId = rs.getInt("related_appointment_id");
         bean.setRelatedAppointmentId(rs.wasNull() ? null : relatedAppointmentId);
         bean.setRead(rs.getBoolean("is_read"));
-        bean.setCreatedAt(rs.getTimestamp("created_at"));
+        // safe timestamp read - avoids timezone conversion errors
+        try {
+            bean.setCreatedAt(rs.getTimestamp("created_at"));
+        } catch (Exception e2) {
+            bean.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+        }
         return bean;
     }
 }

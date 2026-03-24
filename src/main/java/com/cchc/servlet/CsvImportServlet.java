@@ -13,6 +13,7 @@ import jakarta.servlet.http.Part;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 
 @WebServlet(name = "CsvImportServlet", urlPatterns = {"/admin/csv-import"})
@@ -36,6 +37,18 @@ public class CsvImportServlet extends HttpServlet {
             return;
         }
 
+        String act = request.getParameter("action");
+        if ("sample".equals(act)) {
+            // simple sample csv download
+            response.setContentType("text/csv");
+            response.setHeader("Content-Disposition", "attachment; filename=sample_services.csv");
+            try (PrintWriter out = response.getWriter()) {
+                out.println("service_code,service_name,service_description,duration,clinic_id,quota_per_slot,walkin_enabled");
+                out.println("SRV-100,General Checkup,Simple checkup,20,1,5,1");
+            }
+            return;
+        }
+
         request.getRequestDispatcher("/admin/import_csv.jsp").forward(request, response);
     }
 
@@ -43,7 +56,6 @@ public class CsvImportServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // TODO: make better later
         HttpSession s = request.getSession(false);
         if (s == null || s.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login.jsp");
@@ -55,6 +67,9 @@ public class CsvImportServlet extends HttpServlet {
         }
 
         Part p = request.getPart("file");
+        if (p == null || p.getSize() == 0) {
+            p = request.getPart("csvFile");
+        }
         if (p == null || p.getSize() == 0) {
             request.setAttribute("msg", "Please choose csv file");
             request.getRequestDispatcher("/admin/import_csv.jsp").forward(request, response);
@@ -103,13 +118,20 @@ public class CsvImportServlet extends HttpServlet {
                         bad++;
                     }
                 } catch (Exception e) {
-                    // not sure if this works
                     bad++;
                 }
             }
+        } catch (Exception e) {
+            request.setAttribute("msg", "Import error");
+            request.getRequestDispatcher("/admin/import_csv.jsp").forward(request, response);
+            return;
         }
 
-        request.setAttribute("msg", "Import done. success=" + ok + ", failed=" + bad);
+        if (ok > 0) {
+            request.setAttribute("msg", ok + " services imported successfully!");
+        } else {
+            request.setAttribute("msg", "Import failed. bad rows = " + bad);
+        }
         request.getRequestDispatcher("/admin/import_csv.jsp").forward(request, response);
     }
 }

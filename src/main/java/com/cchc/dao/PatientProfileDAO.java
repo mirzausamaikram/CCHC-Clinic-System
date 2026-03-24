@@ -59,21 +59,13 @@ public class PatientProfileDAO {
     }
 
     public int create(PatientProfileBean profile) throws SQLException {
-        String sql = "INSERT INTO patient_profiles "
-                + "(user_id, ic_passport_no, full_name, date_of_birth, gender, phone, address, emergency_contact_name, emergency_contact_phone) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO patient_profiles (user_id, full_name, phone) VALUES (?, ?, ?)";
 
         try (Connection connection = DBConnectionUtil.getConnection();
              PreparedStatement statement = connection.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             statement.setInt(1, profile.getUserId());
-            statement.setString(2, profile.getIcPassportNo());
-            statement.setString(3, profile.getFullName());
-            statement.setDate(4, profile.getDateOfBirth());
-            statement.setString(5, profile.getGender());
-            statement.setString(6, profile.getPhone());
-            statement.setString(7, profile.getAddress());
-            statement.setString(8, profile.getEmergencyContactName());
-            statement.setString(9, profile.getEmergencyContactPhone());
+            statement.setString(2, profile.getFullName());
+            statement.setString(3, profile.getPhone());
 
             statement.executeUpdate();
             try (ResultSet keys = statement.getGeneratedKeys()) {
@@ -86,18 +78,23 @@ public class PatientProfileDAO {
         return 0;
     }
 
+    // simple profile update
+    public boolean updatePhoneByUserId(int userId, String phone) throws SQLException {
+        String sql = "UPDATE patient_profiles SET phone = ? WHERE user_id = ?";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, phone);
+            ps.setInt(2, userId);
+            return ps.executeUpdate() > 0;
+        }
+    }
+
     private PatientProfileBean mapRow(ResultSet rs) throws SQLException {
         PatientProfileBean profile = new PatientProfileBean();
         profile.setPatientId(rs.getInt("patient_id"));
         profile.setUserId(rs.getInt("user_id"));
-        profile.setIcPassportNo(rs.getString("ic_passport_no"));
         profile.setFullName(rs.getString("full_name"));
-        profile.setDateOfBirth(rs.getDate("date_of_birth"));
-        profile.setGender(rs.getString("gender"));
         profile.setPhone(rs.getString("phone"));
-        profile.setAddress(rs.getString("address"));
-        profile.setEmergencyContactName(rs.getString("emergency_contact_name"));
-        profile.setEmergencyContactPhone(rs.getString("emergency_contact_phone"));
         profile.setCreatedAt(rs.getTimestamp("created_at"));
         return profile;
     }

@@ -35,4 +35,21 @@ public class SystemSettingDAO {
             return statement.executeUpdate() > 0;
         }
     }
+
+    // simple save setting (update first, then insert)
+    public boolean setValue(String settingKey, String settingValue, int updatedByUserId) throws SQLException {
+        boolean ok = updateValue(settingKey, settingValue, updatedByUserId);
+        if (ok) {
+            return true;
+        }
+
+        String sql = "INSERT INTO system_settings (setting_key, setting_value, updated_by_user_id) VALUES (?, ?, ?)";
+        try (Connection connection = DBConnectionUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setString(1, settingKey);
+            statement.setString(2, settingValue);
+            statement.setInt(3, updatedByUserId);
+            return statement.executeUpdate() > 0;
+        }
+    }
 }

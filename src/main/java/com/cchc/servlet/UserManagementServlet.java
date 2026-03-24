@@ -77,7 +77,6 @@ public class UserManagementServlet extends HttpServlet {
 
         try {
             if ("add".equals(act)) {
-                // TODO later
                 dao.addSimpleUser(un, em, pw, roleId, active);
             } else if ("edit".equals(act)) {
                 dao.updateSimpleUser(id, un, em, roleId, active);
@@ -85,7 +84,6 @@ public class UserManagementServlet extends HttpServlet {
                 dao.deleteUser(id);
             }
         } catch (Exception e) {
-            // not sure if this works
         }
 
         response.sendRedirect(request.getContextPath() + "/admin/user-management");

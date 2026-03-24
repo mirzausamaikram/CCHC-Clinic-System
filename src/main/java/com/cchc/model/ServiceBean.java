@@ -12,6 +12,7 @@ public class ServiceBean implements Serializable {
     private String serviceName;
     private String serviceDescription;
     private int defaultDurationMinutes;
+    private int quotaPerSlot = 9999;
     private boolean active;
     private Timestamp createdAt;
 
@@ -56,6 +57,14 @@ public class ServiceBean implements Serializable {
 
     public void setDefaultDurationMinutes(int defaultDurationMinutes) {
         this.defaultDurationMinutes = defaultDurationMinutes;
+    }
+
+    public int getQuotaPerSlot() {
+        return quotaPerSlot;
+    }
+
+    public void setQuotaPerSlot(int quotaPerSlot) {
+        this.quotaPerSlot = quotaPerSlot;
     }
 
     public boolean isActive() {

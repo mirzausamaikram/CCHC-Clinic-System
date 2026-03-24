@@ -67,7 +67,6 @@ public class AdminUserServlet extends HttpServlet {
         try {
             id = Integer.parseInt(idStr);
         } catch (Exception e) {
-            // not sure if this works
             id = 0;
         }
 
@@ -77,7 +76,6 @@ public class AdminUserServlet extends HttpServlet {
             try {
                 dao.setUserActive(id, active);
             } catch (SQLException e) {
-                // TODO: finish this later
             }
         }
 

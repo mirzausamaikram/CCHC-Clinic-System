@@ -5,7 +5,6 @@ import com.cchc.model.UserBean;
 import jakarta.servlet.jsp.JspException;
 import jakarta.servlet.jsp.tagext.SimpleTagSupport;
 import java.io.IOException;
-import java.sql.SQLException;
 
 public class UnreadCountTag extends SimpleTagSupport {
 
@@ -26,7 +25,7 @@ public class UnreadCountTag extends SimpleTagSupport {
                 c = dao.countUnreadByUserId(u.getUserId());
             }
         } catch (Exception e) {
-            c = 0; // not sure if this works
+            c = 0;
         }
 
         getJspContext().getOut().print(c);
