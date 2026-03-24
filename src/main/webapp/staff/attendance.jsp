@@ -4,6 +4,7 @@
 <%@page import="com.cchc.model.AppointmentBean"%>
 <%@page import="com.cchc.model.QueueEntryBean"%>
 <%@page import="com.cchc.model.ServiceBean"%>
+<%@page import="com.cchc.model.ClinicBean"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%
     // simple session check
@@ -21,9 +22,11 @@
     List<AppointmentBean> apptList = (List<AppointmentBean>) request.getAttribute("apptList");
     List<QueueEntryBean> queueList = (List<QueueEntryBean>) request.getAttribute("queueList");
     Map<Integer, ServiceBean> serviceMap = (Map<Integer, ServiceBean>) request.getAttribute("serviceMap");
+    List<ClinicBean> clinicList = (List<ClinicBean>) request.getAttribute("clinicList");
     String msg = (String) request.getAttribute("msg");
     String selectedDate = (String) request.getAttribute("selectedDate");
     String clinicName = (String) request.getAttribute("clinicName");
+    Integer selectedClinicId = (Integer) request.getAttribute("selectedClinicId");
 %>
 <!DOCTYPE html>
 <html>
@@ -37,6 +40,16 @@
         <form method="get" action="<%= request.getContextPath() %>/staff/attendance">
             <label>Date:</label>
             <input type="date" name="selectedDate" value="<%= selectedDate != null ? selectedDate : "" %>" />
+            <label>Clinic:</label>
+            <select name="clinicId">
+                <% if (clinicList != null) {
+                    for (int i = 0; i < clinicList.size(); i++) {
+                        ClinicBean c = clinicList.get(i);
+                %>
+                <option value="<%= c.getClinicId() %>" <%= (selectedClinicId != null && c.getClinicId() == selectedClinicId.intValue()) ? "selected" : "" %>><%= c.getClinicName() %></option>
+                <%  }
+                   } %>
+            </select>
             <input type="submit" value="View" />
         </form>
 
@@ -77,24 +90,32 @@
                     <form method="post" action="<%= request.getContextPath() %>/staff/attendance" style="display:inline">
                         <input type="hidden" name="appointmentId" value="<%= appt.getAppointmentId() %>" />
                         <input type="hidden" name="status" value="ARRIVED" />
+                        <input type="hidden" name="selectedDate" value="<%= selectedDate != null ? selectedDate : "" %>" />
+                        <input type="hidden" name="clinicId" value="<%= selectedClinicId != null ? selectedClinicId : "" %>" />
                         <input type="submit" value="Mark Arrived" />
                     </form>
 
                     <form method="post" action="<%= request.getContextPath() %>/staff/attendance" style="display:inline">
                         <input type="hidden" name="appointmentId" value="<%= appt.getAppointmentId() %>" />
                         <input type="hidden" name="status" value="COMPLETED" />
+                        <input type="hidden" name="selectedDate" value="<%= selectedDate != null ? selectedDate : "" %>" />
+                        <input type="hidden" name="clinicId" value="<%= selectedClinicId != null ? selectedClinicId : "" %>" />
                         <input type="submit" value="Mark Completed" />
                     </form>
 
                     <form method="post" action="<%= request.getContextPath() %>/staff/attendance" style="display:inline">
                         <input type="hidden" name="appointmentId" value="<%= appt.getAppointmentId() %>" />
                         <input type="hidden" name="status" value="NO_SHOW" />
+                        <input type="hidden" name="selectedDate" value="<%= selectedDate != null ? selectedDate : "" %>" />
+                        <input type="hidden" name="clinicId" value="<%= selectedClinicId != null ? selectedClinicId : "" %>" />
                         <input type="submit" value="Mark No-show" />
                     </form>
 
                     <form method="post" action="<%= request.getContextPath() %>/staff/attendance" style="display:inline">
                         <input type="hidden" name="appointmentId" value="<%= appt.getAppointmentId() %>" />
                         <input type="hidden" name="status" value="CANCELLED" />
+                        <input type="hidden" name="selectedDate" value="<%= selectedDate != null ? selectedDate : "" %>" />
+                        <input type="hidden" name="clinicId" value="<%= selectedClinicId != null ? selectedClinicId : "" %>" />
                         <input type="text" name="reason" placeholder="cancel reason" />
                         <input type="submit" value="Cancel by Clinic" />
                     </form>

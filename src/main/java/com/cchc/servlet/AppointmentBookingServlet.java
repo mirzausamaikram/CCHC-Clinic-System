@@ -161,6 +161,11 @@ public class AppointmentBookingServlet extends HttpServlet {
             request.setAttribute("selectedDate", selectedDate);
             request.setAttribute("availableSlots", availableSlots);
 
+            // simple past-slot filter: tell JSP if date is today and what time it is now
+            boolean isToday = selectedDate.equals(LocalDate.now().toString());
+            request.setAttribute("isToday", isToday);
+            request.setAttribute("currentTime", LocalTime.now().toString().substring(0, 5)); // "HH:mm"
+
             request.getRequestDispatcher("/patient/book-appointment.jsp").forward(request, response);
         } catch (SQLException e) {
             request.setAttribute("errorMessage", "Database error");
@@ -212,17 +217,25 @@ public class AppointmentBookingServlet extends HttpServlet {
                 return;
             }
 
-            int csId = 0;
-            try {
-                csId = Integer.parseInt(request.getParameter("clinicServiceId"));
-            } catch (Exception e) {
-                csId = 0;
-            }
+            // simple read clinic + service IDs from form
             int clinicIdParam = 0;
             try {
                 clinicIdParam = Integer.parseInt(request.getParameter("clinicId"));
             } catch (Exception e) {
                 clinicIdParam = 0;
+            }
+            int serviceIdParam = 0;
+            try {
+                serviceIdParam = Integer.parseInt(request.getParameter("clinicServiceId"));
+            } catch (Exception e) {
+                serviceIdParam = 0;
+            }
+            // auto-pick first service for this clinic if none passed
+            if (serviceIdParam <= 0 && clinicIdParam > 0) {
+                List<ClinicServiceBean> autoCs = csDao.findByClinicId(clinicIdParam);
+                if (!autoCs.isEmpty()) {
+                    serviceIdParam = autoCs.get(0).getServiceId();
+                }
             }
             String d = request.getParameter("appointmentDate");
             String t = request.getParameter("startTime");
@@ -231,32 +244,28 @@ public class AppointmentBookingServlet extends HttpServlet {
             }
             String notes = request.getParameter("notes");
 
-            if (csId <= 0 || d == null || t == null || "".equals(d) || "".equals(t)) {
-                request.setAttribute("error", "Booking failed - slot may be full");
+            if (serviceIdParam <= 0 || clinicIdParam <= 0 || d == null || t == null || "".equals(d) || "".equals(t)) {
+                request.setAttribute("error", "Please select a clinic, service and timeslot.");
                 doGet(request, response);
                 return;
             }
 
-            ClinicServiceBean cs = csDao.findById(csId);
-            int useClinicId = 0;
-            int useServiceId = 0;
+            // look up clinic+service to get the correct duration
+            int useClinicId = clinicIdParam;
+            int useServiceId = serviceIdParam;
             int useDuration = 20;
-
+            ClinicServiceBean cs = csDao.findByClinicAndService(clinicIdParam, serviceIdParam);
             if (cs != null) {
-                useClinicId = cs.getClinicId();
-                useServiceId = cs.getServiceId();
                 useDuration = cs.getDurationMinutes();
             } else {
-                ServiceBean s = sDao.findById(csId);
-                if (s != null && clinicIdParam > 0) {
-                    useClinicId = clinicIdParam;
-                    useServiceId = s.getServiceId();
+                ServiceBean s = sDao.findById(serviceIdParam);
+                if (s != null) {
                     useDuration = s.getDefaultDurationMinutes();
                 }
             }
 
             if (useClinicId <= 0 || useServiceId <= 0) {
-                request.setAttribute("error", "Booking failed - slot may be full");
+                request.setAttribute("error", "Please select a clinic, service and timeslot.");
                 doGet(request, response);
                 return;
             }

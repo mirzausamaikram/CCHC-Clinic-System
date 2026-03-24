@@ -28,6 +28,22 @@ public class ClinicServiceDAO {
         return list;
     }
 
+    // simple lookup by clinic + service
+    public ClinicServiceBean findByClinicAndService(int clinicId, int serviceId) throws SQLException {
+        String sql = "SELECT * FROM clinic_services WHERE clinic_id = ? AND service_id = ? AND is_active = 1";
+        try (Connection connection = DBConnectionUtil.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, clinicId);
+            statement.setInt(2, serviceId);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     public ClinicServiceBean findById(int clinicServiceId) throws SQLException {
         String sql = "SELECT * FROM clinic_services WHERE clinic_service_id = ?";
 

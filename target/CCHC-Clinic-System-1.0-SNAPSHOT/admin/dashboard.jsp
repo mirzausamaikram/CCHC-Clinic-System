@@ -2,12 +2,10 @@
 <%@page import="com.cchc.model.UserBean"%>
 <%@taglib prefix="cchc" uri="http://cchc/tags" %>
 <%
-    UserBean user = (UserBean) session.getAttribute("user");
+    // simple check - use loginUser first (same order as unreadCount tag)
+    UserBean user = (UserBean) session.getAttribute("loginUser");
     if (user == null) {
-        user = (UserBean) session.getAttribute("loginUser");
-        if (user != null) {
-            session.setAttribute("user", user);
-        }
+        user = (UserBean) session.getAttribute("user");
     }
     if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");

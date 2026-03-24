@@ -65,15 +65,7 @@
             <td><%= u.getEmail() %></td>
             <td><%= staffClinicMap != null && staffClinicMap.get(u.getUserId()) != null ? staffClinicMap.get(u.getUserId()) : "-" %></td>
             <td>
-                <form method="post" action="<%= request.getContextPath() %>/admin/users">
-                    <input type="hidden" name="action" value="edit" />
-                    <input type="hidden" name="userId" value="<%= u.getUserId() %>" />
-                    <input type="text" name="username" value="<%= u.getUsername() %>" required />
-                    <input type="text" name="email" value="<%= u.getEmail() %>" required />
-                    <input type="number" name="roleId" value="<%= u.getRoleId() %>" min="1" max="3" required />
-                    <input type="number" name="clinicId" value="<%= staffClinicMap != null && staffClinicMap.get(u.getUserId()) != null ? staffClinicMap.get(u.getUserId()) : "" %>" min="1" />
-                    <input type="submit" value="Save" />
-                </form>
+                <a href="<%= request.getContextPath() %>/admin/edit-user?userId=<%= u.getUserId() %>">Edit</a>
             </td>
             <td>
                 <form method="post" action="<%= request.getContextPath() %>/admin/users">

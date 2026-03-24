@@ -1,0 +1,6 @@
+service_code,service_name,service_description,duration,clinic_id,quota_per_slot,walkin_enabled
+SRV106,Travel Health Advice,Pre-travel medical advice and checklist,20,1,5,1
+SRV107,Child Growth Check,Pediatric growth and nutrition follow-up,25,2,5,1
+SRV108,Smoking Cessation Session,Guided counseling for smoking cessation,30,3,3,1
+SRV109,Post-Op Follow Up,Post operation follow up and wound review,20,4,4,1
+SRV110,Sleep Health Consultation,Assessment and advice for sleep problems,30,5,3,1

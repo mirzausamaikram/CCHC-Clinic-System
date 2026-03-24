@@ -1,0 +1,7 @@
+service_code,service_name,service_description,duration,clinic_id,quota_per_slot,walkin_enabled
+SRV204,Minor Procedure Review,Follow-up for minor procedures,20,1,4,1
+SRV205,Immunity Consultation,Immune system health consultation,25,2,3,1
+SRV204,Duplicate In Same File,Duplicate code in same file should fail,25,2,3,1
+SRV206,Post Infection Check,Recovery follow-up consultation,30,5,3,1
+BROKEN_ROW
+SRV207,Wellness Follow Up,General wellness progress review,20,3,5,1

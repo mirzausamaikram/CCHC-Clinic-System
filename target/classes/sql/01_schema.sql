@@ -1,29 +1,42 @@
-USE cchc_clinic_system;
-
--- clean schema for cchc_clinic
 CREATE DATABASE IF NOT EXISTS cchc_clinic_system;
 USE cchc_clinic_system;
 
--- roles
+SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS audit_logs;
+DROP TABLE IF EXISTS csv_import_logs;
+DROP TABLE IF EXISTS notifications;
+DROP TABLE IF EXISTS queue_entries;
+DROP TABLE IF EXISTS appointments;
+DROP TABLE IF EXISTS system_settings;
+DROP TABLE IF EXISTS staff_profiles;
+DROP TABLE IF EXISTS patient_profiles;
+DROP TABLE IF EXISTS clinic_services;
+DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS clinics;
+DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS roles;
+SET FOREIGN_KEY_CHECKS = 1;
+
 CREATE TABLE roles (
     role_id INT AUTO_INCREMENT PRIMARY KEY,
     role_name VARCHAR(30) NOT NULL UNIQUE,
     role_description VARCHAR(255)
 );
 
--- users
 CREATE TABLE users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     role_id INT NOT NULL,
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(100) NOT NULL UNIQUE,
+    full_name VARCHAR(120),
+    phone VARCHAR(25),
     password_hash VARCHAR(255) NOT NULL,
     is_active TINYINT(1) NOT NULL DEFAULT 1,
+    last_login TIMESTAMP NULL,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES roles(role_id)
 );
 
--- clinics
 CREATE TABLE clinics (
     clinic_id INT AUTO_INCREMENT PRIMARY KEY,
     clinic_code VARCHAR(20) NOT NULL UNIQUE,
@@ -38,7 +51,6 @@ CREATE TABLE clinics (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- services
 CREATE TABLE services (
     service_id INT AUTO_INCREMENT PRIMARY KEY,
     service_code VARCHAR(20) NOT NULL UNIQUE,
@@ -49,7 +61,6 @@ CREATE TABLE services (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- clinic_services
 CREATE TABLE clinic_services (
     clinic_service_id INT AUTO_INCREMENT PRIMARY KEY,
     clinic_id INT NOT NULL,
@@ -63,7 +74,6 @@ CREATE TABLE clinic_services (
     FOREIGN KEY (service_id) REFERENCES services(service_id)
 );
 
--- patient_profiles
 CREATE TABLE patient_profiles (
     patient_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
@@ -73,7 +83,6 @@ CREATE TABLE patient_profiles (
     FOREIGN KEY (user_id) REFERENCES users(user_id)
 );
 
--- staff_profiles
 CREATE TABLE staff_profiles (
     staff_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL UNIQUE,
@@ -87,7 +96,6 @@ CREATE TABLE staff_profiles (
     FOREIGN KEY (clinic_id) REFERENCES clinics(clinic_id)
 );
 
--- appointments (simple and correct)
 CREATE TABLE appointments (
     appointment_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -103,7 +111,6 @@ CREATE TABLE appointments (
     FOREIGN KEY (service_id) REFERENCES services(service_id)
 );
 
--- queue_entries
 CREATE TABLE queue_entries (
     queue_id INT AUTO_INCREMENT PRIMARY KEY,
     clinic_id INT NOT NULL,
@@ -125,7 +132,6 @@ CREATE TABLE queue_entries (
     FOREIGN KEY (appointment_id) REFERENCES appointments(appointment_id)
 );
 
--- notifications
 CREATE TABLE notifications (
     notification_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -139,7 +145,6 @@ CREATE TABLE notifications (
     FOREIGN KEY (related_appointment_id) REFERENCES appointments(appointment_id)
 );
 
--- system_settings
 CREATE TABLE system_settings (
     setting_key VARCHAR(80) PRIMARY KEY,
     setting_value VARCHAR(255) NOT NULL,
@@ -149,7 +154,6 @@ CREATE TABLE system_settings (
     FOREIGN KEY (updated_by_user_id) REFERENCES users(user_id)
 );
 
--- csv_import_logs
 CREATE TABLE csv_import_logs (
     import_id INT AUTO_INCREMENT PRIMARY KEY,
     import_type VARCHAR(30) NOT NULL,
@@ -163,7 +167,6 @@ CREATE TABLE csv_import_logs (
     FOREIGN KEY (imported_by_user_id) REFERENCES users(user_id)
 );
 
--- audit_logs
 CREATE TABLE audit_logs (
     audit_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NULL,

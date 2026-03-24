@@ -19,6 +19,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Import CSV</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
 </head>
 <body>
     <h2>Import Services CSV</h2>
@@ -28,7 +33,19 @@
     </p>
 
     <% if (msg != null) { %>
-        <p><%= msg %></p>
+        <p style="color: green; font-weight: bold;"><%= msg %></p>
+        <% 
+            // if success message, show simple summary
+            if (msg.contains("success") || msg.contains("Successfully")) {
+        %>
+        <div style="background-color: #f0f0f0; padding: 10px; border: 1px solid #999; margin: 10px 0; width: 300px;">
+            <p><b>Summary</b></p>
+            <div style="background-color: #22a922; height: 20px; width: 100%; border: 1px solid #999; margin-bottom: 5px;">
+                <span style="color: white; font-weight: bold; display: inline-block; line-height: 20px;">CSV Import</span>
+            </div>
+            <p><small>Data imported successfully. Check the Reports page for updated utilisation and no-show charts.</small></p>
+        </div>
+        <% } %>
     <% } %>
 
     <form method="post" action="<%= request.getContextPath() %>/admin/csv-import" enctype="multipart/form-data">

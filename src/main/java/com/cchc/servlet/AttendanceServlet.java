@@ -73,10 +73,22 @@ public class AttendanceServlet extends HttpServlet {
             request.setAttribute("apptList", new java.util.ArrayList<AppointmentBean>());
             request.setAttribute("queueList", new java.util.ArrayList<QueueEntryBean>());
             request.setAttribute("serviceMap", new java.util.HashMap<Integer, ServiceBean>());
+            request.setAttribute("clinicList", new java.util.ArrayList<ClinicBean>());
+            request.setAttribute("selectedClinicId", 0);
             request.setAttribute("selectedDate", LocalDate.now().toString());
             request.setAttribute("clinicName", "-");
             request.getRequestDispatcher("/staff/attendance.jsp").forward(request, response);
             return;
+        }
+
+        int selectedClinicId = profile.getClinicId();
+        String clinicIdStr = request.getParameter("clinicId");
+        try {
+            if (clinicIdStr != null && !clinicIdStr.trim().isEmpty()) {
+                selectedClinicId = Integer.parseInt(clinicIdStr);
+            }
+        } catch (Exception e) {
+            selectedClinicId = profile.getClinicId();
         }
 
         String selectedDate = request.getParameter("selectedDate");
@@ -93,11 +105,12 @@ public class AttendanceServlet extends HttpServlet {
         }
 
         request.setAttribute("selectedDate", selectedDate);
+        request.setAttribute("selectedClinicId", selectedClinicId);
 
         try {
             // load selected date appointments and queue for this clinic
-            List<AppointmentBean> list = apptDao.findByClinicAndDate(profile.getClinicId(), useDate);
-            List<QueueEntryBean> queueList = qDao.findWaitingByClinicAndDate(profile.getClinicId(), useDate);
+            List<AppointmentBean> list = apptDao.findByClinicAndDate(selectedClinicId, useDate);
+            List<QueueEntryBean> queueList = qDao.findWaitingByClinicAndDate(selectedClinicId, useDate);
 
             List<ServiceBean> services = serviceDao.findAll();
             Map<Integer, ServiceBean> serviceMap = new HashMap<>();
@@ -106,17 +119,20 @@ public class AttendanceServlet extends HttpServlet {
                 serviceMap.put(s.getServiceId(), s);
             }
 
-            ClinicBean clinic = clinicDao.findById(profile.getClinicId());
+            List<ClinicBean> clinicList = clinicDao.findAllActive();
+            ClinicBean clinic = clinicDao.findById(selectedClinicId);
 
             request.setAttribute("apptList", list);
             request.setAttribute("queueList", queueList);
             request.setAttribute("serviceMap", serviceMap);
-            request.setAttribute("clinicName", clinic != null ? clinic.getClinicName() : ("Clinic #" + profile.getClinicId()));
+            request.setAttribute("clinicList", clinicList);
+            request.setAttribute("clinicName", clinic != null ? clinic.getClinicName() : ("Clinic #" + selectedClinicId));
         } catch (SQLException e) {
             request.setAttribute("apptList", new java.util.ArrayList<AppointmentBean>());
             request.setAttribute("queueList", new java.util.ArrayList<QueueEntryBean>());
             request.setAttribute("serviceMap", new java.util.HashMap<Integer, ServiceBean>());
-            request.setAttribute("clinicName", "Clinic #" + profile.getClinicId());
+            request.setAttribute("clinicList", new java.util.ArrayList<ClinicBean>());
+            request.setAttribute("clinicName", "Clinic #" + selectedClinicId);
         }
 
         String msg = request.getParameter("msg");
@@ -147,6 +163,8 @@ public class AttendanceServlet extends HttpServlet {
         String idStr = request.getParameter("appointmentId");
         String status = request.getParameter("status");
         String reason = request.getParameter("reason");
+        String selectedDate = request.getParameter("selectedDate");
+        String clinicId = request.getParameter("clinicId");
 
         int id = 0;
         try {
@@ -158,7 +176,9 @@ public class AttendanceServlet extends HttpServlet {
         // check status is one of the allowed values
         if (id <= 0 || status == null ||
                 (!status.equals("ARRIVED") && !status.equals("COMPLETED") && !status.equals("NO_SHOW") && !status.equals("CANCELLED"))) {
-            response.sendRedirect(request.getContextPath() + "/staff/attendance?msg=Invalid+input");
+            response.sendRedirect(request.getContextPath() + "/staff/attendance?msg=Invalid+input"
+                    + "&selectedDate=" + (selectedDate == null ? "" : selectedDate)
+                    + "&clinicId=" + (clinicId == null ? "" : clinicId));
             return;
         }
 
@@ -188,10 +208,14 @@ public class AttendanceServlet extends HttpServlet {
                 nDao.create(n);
             }
         } catch (SQLException e) {
-            response.sendRedirect(request.getContextPath() + "/staff/attendance?msg=Update+failed");
+            response.sendRedirect(request.getContextPath() + "/staff/attendance?msg=Update+failed"
+                    + "&selectedDate=" + (selectedDate == null ? "" : selectedDate)
+                    + "&clinicId=" + (clinicId == null ? "" : clinicId));
             return;
         }
 
-        response.sendRedirect(request.getContextPath() + "/staff/attendance?msg=Status+updated");
+        response.sendRedirect(request.getContextPath() + "/staff/attendance?msg=Status+updated"
+                + "&selectedDate=" + (selectedDate == null ? "" : selectedDate)
+                + "&clinicId=" + (clinicId == null ? "" : clinicId));
     }
 }

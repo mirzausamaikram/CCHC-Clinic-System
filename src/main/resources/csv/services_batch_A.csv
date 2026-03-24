@@ -1,0 +1,6 @@
+service_code,service_name,service_description,duration,clinic_id,quota_per_slot,walkin_enabled
+SRV101,Family Medicine Basic,General family medicine consultation,20,1,6,1
+SRV102,Women Health Consultation,Women health and wellness check,25,2,4,1
+SRV103,Senior Care Review,Elderly routine health review,30,3,4,1
+SRV104,Sports Injury Assessment,Initial assessment for minor sports injuries,25,4,3,1
+SRV105,Allergy Screening,Basic allergy symptom screening and advice,20,5,5,1

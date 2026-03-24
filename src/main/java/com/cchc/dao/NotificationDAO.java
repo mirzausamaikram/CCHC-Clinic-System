@@ -96,15 +96,35 @@ public class NotificationDAO {
     }
 
     // simple notification system - get last 5 notifications for user
+    // DATE_FORMAT avoids JDBC timezone conversion errors on created_at
     public List<NotificationBean> getRecentNotifications(int userId) throws SQLException {
-        String sql = "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 5";
+        String sql = "SELECT notification_id, user_id, title, message, notification_type, "
+                + "related_appointment_id, is_read, "
+                + "DATE_FORMAT(created_at, '%Y-%m-%d %H:%i:%s') AS created_str "
+                + "FROM notifications WHERE user_id = ? ORDER BY created_at DESC LIMIT 5";
         List<NotificationBean> list = new ArrayList<>();
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, userId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    list.add(mapRow(rs));
+                    NotificationBean bean = new NotificationBean();
+                    bean.setNotificationId(rs.getInt("notification_id"));
+                    bean.setUserId(rs.getInt("user_id"));
+                    bean.setTitle(rs.getString("title"));
+                    bean.setMessage(rs.getString("message"));
+                    bean.setNotificationType(rs.getString("notification_type"));
+                    int rid = rs.getInt("related_appointment_id");
+                    bean.setRelatedAppointmentId(rs.wasNull() ? null : rid);
+                    bean.setRead(rs.getBoolean("is_read"));
+                    // read timestamp as string - no JDBC conversion needed
+                    String createdStr = rs.getString("created_str");
+                    try {
+                        bean.setCreatedAt(java.sql.Timestamp.valueOf(createdStr));
+                    } catch (Exception ex) {
+                        bean.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+                    }
+                    list.add(bean);
                 }
             }
         }
@@ -151,9 +171,10 @@ public class NotificationDAO {
         int relatedAppointmentId = rs.getInt("related_appointment_id");
         bean.setRelatedAppointmentId(rs.wasNull() ? null : relatedAppointmentId);
         bean.setRead(rs.getBoolean("is_read"));
-        // safe timestamp read - avoids timezone conversion errors
+        // read timestamp as string to avoid JDBC timezone conversion errors
         try {
-            bean.setCreatedAt(rs.getTimestamp("created_at"));
+            String s = rs.getString("created_at");
+            bean.setCreatedAt(s != null ? java.sql.Timestamp.valueOf(s) : new java.sql.Timestamp(System.currentTimeMillis()));
         } catch (Exception e2) {
             bean.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
         }

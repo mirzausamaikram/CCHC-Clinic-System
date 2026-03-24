@@ -37,6 +37,10 @@
     if (slots == null) {
         slots = new ArrayList<>();
     }
+    // simple past-slot check: disable slots before now when date is today
+    boolean isToday = Boolean.TRUE.equals(request.getAttribute("isToday"));
+    String currentTime = (String) request.getAttribute("currentTime");
+    if (currentTime == null) currentTime = "00:00";
 %>
 <!DOCTYPE html>
 <html>
@@ -77,20 +81,22 @@
                         </select>
                     </td>
                     <td><b>Date</b></td>
-                    <td><input type="date" name="appointmentDate" value="<%= selectedDate %>" /></td>
+                    <td><input type="date" name="appointmentDate" value="<%= selectedDate %>" min="<%= java.time.LocalDate.now().toString() %>" onchange="this.form.submit()" /></td>
                 </tr>
                 <tr>
                     <td><b>Service</b></td>
                     <td colspan="3">
-                        <select name="selectedService">
+                        <select name="selectedService" onchange="this.form.submit()">
                             <option value="">-- Select Service --</option>
                             <%
                                 List xServices = (List) request.getAttribute("services");
+                                String prevSvc = request.getParameter("selectedService");
                                 if (xServices != null) {
                                     for (Object obj : xServices) {
                                         ServiceBean service = (ServiceBean) obj;
+                                        String sId = String.valueOf(service.getServiceId());
                             %>
-                            <option value="<%= service.getServiceId() %>"><%= service.getServiceName() %></option>
+                            <option value="<%= sId %>" <%= sId.equals(prevSvc) ? "selected" : "" %>><%= service.getServiceName() %></option>
                             <%
                                     }
                                 }
@@ -111,7 +117,7 @@
             <input type="hidden" name="clinicId" value="<%= cid %>" />
             <input type="hidden" name="appointmentDate" value="<%= selectedDate %>" />
             <%
-                // carry the service chosen in step 1
+                // carry the service selected in step 1
                 String selSvc = request.getParameter("selectedService");
                 if (selSvc == null) selSvc = "";
             %>
@@ -122,8 +128,12 @@
                     <td>
                         <select name="timeSlot" required>
                             <option value="">-- Select Slot --</option>
-                            <% for (int i = 0; i < slots.size(); i++) { %>
-                                <option value="<%= slots.get(i) %>"><%= slots.get(i) %></option>
+                            <% for (int i = 0; i < slots.size(); i++) {
+                                String slot = slots.get(i);
+                                // if today and slot is before or equal to current time, disable it
+                                boolean isPast = isToday && slot.compareTo(currentTime) <= 0;
+                            %>
+                                <option value="<%= slot %>" <%= isPast ? "disabled" : "" %>><%= slot %></option>
                             <% } %>
                         </select>
                     </td>

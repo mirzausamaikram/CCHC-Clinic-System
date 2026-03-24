@@ -49,7 +49,7 @@ public class UserDAO {
 
     public List<UserBean> getAllUsers() throws SQLException {
         // get data from database
-        String sql = "SELECT user_id, role_id, username, email, password_hash, is_active, created_at FROM users ORDER BY user_id DESC";
+        String sql = "SELECT user_id, role_id, username, email, full_name, phone, password_hash, is_active, created_at FROM users ORDER BY user_id DESC";
         List<UserBean> list = new ArrayList<>();
 
         try (Connection con = DBConnectionUtil.getConnection();
@@ -61,6 +61,8 @@ public class UserDAO {
                 user.setRoleId(rs.getInt("role_id"));
                 user.setUsername(rs.getString("username"));
                 user.setEmail(rs.getString("email"));
+                user.setFullName(rs.getString("full_name"));
+                user.setPhone(rs.getString("phone"));
                 user.setPasswordHash(rs.getString("password_hash"));
                 user.setActive(rs.getBoolean("is_active"));
                 user.setCreatedAt(rs.getTimestamp("created_at"));
@@ -69,6 +71,31 @@ public class UserDAO {
         }
 
         return list;
+    }
+
+    // get single user by ID
+    public UserBean getUserById(int userId) throws SQLException {
+        String sql = "SELECT user_id, role_id, username, email, full_name, phone, password_hash, is_active, created_at FROM users WHERE user_id = ?";
+        try (Connection con = DBConnectionUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    UserBean user = new UserBean();
+                    user.setUserId(rs.getInt("user_id"));
+                    user.setRoleId(rs.getInt("role_id"));
+                    user.setUsername(rs.getString("username"));
+                    user.setEmail(rs.getString("email"));
+                    user.setFullName(rs.getString("full_name"));
+                    user.setPhone(rs.getString("phone"));
+                    user.setPasswordHash(rs.getString("password_hash"));
+                    user.setActive(rs.getBoolean("is_active"));
+                    user.setCreatedAt(rs.getTimestamp("created_at"));
+                    return user;
+                }
+            }
+        }
+        return null;
     }
 
     public boolean setUserActive(int userId, boolean active) throws SQLException {
@@ -164,7 +191,7 @@ public class UserDAO {
 
     // simple helper for dropdowns
     public List<UserBean> findActiveByRoleName(String roleName) throws SQLException {
-        String sql = "SELECT u.user_id, u.role_id, u.username, u.email, u.password_hash, u.is_active, u.created_at "
+        String sql = "SELECT u.user_id, u.role_id, u.username, u.email, u.full_name, u.phone, u.password_hash, u.is_active, u.created_at "
                 + "FROM users u JOIN roles r ON r.role_id = u.role_id "
                 + "WHERE r.role_name = ? AND u.is_active = 1 ORDER BY u.username";
         List<UserBean> list = new ArrayList<>();
@@ -179,6 +206,8 @@ public class UserDAO {
                     user.setRoleId(rs.getInt("role_id"));
                     user.setUsername(rs.getString("username"));
                     user.setEmail(rs.getString("email"));
+                    user.setFullName(rs.getString("full_name"));
+                    user.setPhone(rs.getString("phone"));
                     user.setPasswordHash(rs.getString("password_hash"));
                     user.setActive(rs.getBoolean("is_active"));
                     user.setCreatedAt(rs.getTimestamp("created_at"));
@@ -196,6 +225,34 @@ public class UserDAO {
              PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setInt(1, userId);
             statement.executeUpdate();
+        }
+    }
+
+    // admin update user: full_name, email, phone, and optional password
+    public boolean updateUser(int userId, String fullName, String email, String phone, String newPassword) throws SQLException {
+        // if new password is provided, update with password
+        if (newPassword != null && !newPassword.isEmpty()) {
+            String sql = "UPDATE users SET full_name = ?, email = ?, phone = ?, password_hash = ? WHERE user_id = ?";
+            try (Connection con = DBConnectionUtil.getConnection();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, fullName);
+                ps.setString(2, email);
+                ps.setString(3, phone);
+                ps.setString(4, newPassword);
+                ps.setInt(5, userId);
+                return ps.executeUpdate() > 0;
+            }
+        } else {
+            // update without password
+            String sql = "UPDATE users SET full_name = ?, email = ?, phone = ? WHERE user_id = ?";
+            try (Connection con = DBConnectionUtil.getConnection();
+                 PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, fullName);
+                ps.setString(2, email);
+                ps.setString(3, phone);
+                ps.setInt(4, userId);
+                return ps.executeUpdate() > 0;
+            }
         }
     }
 

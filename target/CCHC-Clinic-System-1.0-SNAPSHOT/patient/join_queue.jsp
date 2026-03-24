@@ -23,6 +23,15 @@
         return;
     }
 
+    String displayName = "Patient";
+    if (user.getFullName() != null && !user.getFullName().trim().isEmpty()) {
+        displayName = user.getFullName();
+    } else if (user.getUsername() != null && !user.getUsername().trim().isEmpty()) {
+        displayName = user.getUsername();
+    } else if (user.getEmail() != null && !user.getEmail().trim().isEmpty()) {
+        displayName = user.getEmail();
+    }
+
     // Get clinics and services from request
     List<ClinicBean> clinics = (List<ClinicBean>) request.getAttribute("clinics");
     List<ServiceBean> services = (List<ServiceBean>) request.getAttribute("services");
@@ -55,7 +64,7 @@
     </head>
     <body>
         <h1>Join Walk-in Queue</h1>
-        <p>Welcome, <%= user.getUsername() %></p>
+        <p>Welcome, <%= displayName %></p>
 
         <% if (msg != null) { %>
         <p><b><%= msg %></b></p>

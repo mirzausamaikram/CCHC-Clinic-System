@@ -178,11 +178,17 @@ public class ReportDAO {
     }
 
     public List<Map<String, Object>> getAppointmentRecords(int clinicId, int serviceId, int month, int year, String status) throws SQLException {
-        String sql = "SELECT appointment_id, user_id, clinic_id, service_id, appointment_date, time_slot, status, notes "
-                + "FROM appointments WHERE clinic_id = ? AND MONTH(appointment_date) = ? AND YEAR(appointment_date) = ? "
-                + "AND (? <= 0 OR service_id = ?) "
-                + "AND (? IS NULL OR ? = '' OR status = ?) "
-                + "ORDER BY appointment_date DESC, appointment_id DESC";
+        // join with patient_profiles, clinics, and services to get names
+        String sql = "SELECT a.appointment_id, a.user_id, p.full_name, a.clinic_id, c.clinic_name, "
+                + "a.service_id, s.service_name, a.appointment_date, a.time_slot, a.status "
+                + "FROM appointments a "
+                + "LEFT JOIN patient_profiles p ON a.user_id = p.user_id "
+                + "LEFT JOIN clinics c ON a.clinic_id = c.clinic_id "
+                + "LEFT JOIN services s ON a.service_id = s.service_id "
+                + "WHERE a.clinic_id = ? AND MONTH(a.appointment_date) = ? AND YEAR(a.appointment_date) = ? "
+                + "AND (? <= 0 OR a.service_id = ?) "
+                + "AND (? IS NULL OR ? = '' OR a.status = ?) "
+                + "ORDER BY a.appointment_date DESC, a.appointment_id DESC";
 
         List<Map<String, Object>> list = new ArrayList<>();
         try (Connection con = DBConnectionUtil.getConnection();
@@ -199,13 +205,12 @@ public class ReportDAO {
                 while (rs.next()) {
                     Map<String, Object> row = new HashMap<>();
                     row.put("appointmentId", rs.getInt("appointment_id"));
-                    row.put("userId", rs.getInt("user_id"));
-                    row.put("clinicId", rs.getInt("clinic_id"));
-                    row.put("serviceId", rs.getInt("service_id"));
+                    row.put("patientName", rs.getString("full_name"));
+                    row.put("clinicName", rs.getString("clinic_name"));
+                    row.put("serviceName", rs.getString("service_name"));
                     row.put("appointmentDate", rs.getDate("appointment_date"));
                     row.put("timeSlot", rs.getString("time_slot"));
                     row.put("status", rs.getString("status"));
-                    row.put("notes", rs.getString("notes"));
                     list.add(row);
                 }
             }

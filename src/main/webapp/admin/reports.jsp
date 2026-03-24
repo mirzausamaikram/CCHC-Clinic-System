@@ -150,17 +150,28 @@
         </tr>
     </table>
 
+    <!-- simple bar chart for utilisation rate -->
+    <h3>Utilisation Rate Chart</h3>
+    <div style="margin: 10px 0;">
+        <p><b>Utilisation Rate: <%= utilRate %>%</b></p>
+        <div style="background-color: #ddd; width: 300px; height: 30px; border: 1px solid #999;">
+            <div style="background-color: #22a922; height: 100%; width: <%= utilRate %>%; display: inline-block; text-align: center; color: white; line-height: 30px; font-weight: bold;">
+                <% if (utilRate > 10) { %><%= utilRate %>%<% } %>
+            </div>
+        </div>
+    </div>
+
     <br/>
 
     <h3>Appointment Records</h3>
     <table border="1" cellpadding="5" cellspacing="0">
         <tr>
             <th>ID</th>
-            <th>User</th>
+            <th>Patient</th>
             <th>Clinic</th>
             <th>Service</th>
             <th>Date</th>
-            <th>Time Slot</th>
+            <th>Time</th>
             <th>Status</th>
         </tr>
         <% if (records != null && records.size() > 0) {
@@ -169,9 +180,9 @@
         %>
         <tr>
             <td><%= r.get("appointmentId") %></td>
-            <td><%= r.get("userId") %></td>
-            <td><%= r.get("clinicId") %></td>
-            <td><%= r.get("serviceId") %></td>
+            <td><%= r.get("patientName") %></td>
+            <td><%= r.get("clinicName") %></td>
+            <td><%= r.get("serviceName") %></td>
             <td><%= r.get("appointmentDate") %></td>
             <td><%= r.get("timeSlot") %></td>
             <td><%= r.get("status") %></td>
@@ -201,6 +212,26 @@
             </td>
         </tr>
     </table>
+
+    <!-- simple bar chart for no-show summary -->
+    <h3>No-Show Rate Chart</h3>
+    <div style="margin: 10px 0;">
+        <p><b>No-Show Count: <%= noShow %></b></p>
+        <% 
+            // calculate no-show percentage if total slots available
+            int noShowPercent = (totalSlots > 0) ? (noShow * 100 / totalSlots) : 0;
+            // keep a small visible bar when noShow > 0
+            int noShowBarWidth = noShowPercent;
+            if (noShow > 0 && noShowBarWidth < 3) {
+                noShowBarWidth = 3;
+            }
+        %>
+        <div style="background-color: #ddd; width: 300px; height: 30px; border: 1px solid #999;">
+            <div style="background-color: #cc0000; height: 100%; width: <%= noShowBarWidth %>%; display: inline-block; text-align: center; color: white; line-height: 30px; font-weight: bold;">
+                <% if (noShowPercent > 10) { %><%= noShowPercent %>%<% } %>
+            </div>
+        </div>
+    </div>
 
     <br/>
 

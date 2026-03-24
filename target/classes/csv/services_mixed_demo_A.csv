@@ -1,0 +1,6 @@
+service_code,service_name,service_description,duration,clinic_id,quota_per_slot,walkin_enabled
+SRV201,Community Health Check,Basic community health screening,20,1,5,1
+SRV202,Nutrition Counseling,Diet and nutrition advice session,25,2,4,1
+SRV001,Duplicate Existing Code,This should fail because service code already exists,20,3,4,1
+BADROW_ONLY_TWO_COLUMNS,MissingData
+SRV203,Respiratory Review,Asthma and breathing review,30,4,3,1

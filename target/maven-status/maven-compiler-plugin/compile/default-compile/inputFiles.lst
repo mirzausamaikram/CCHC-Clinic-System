@@ -2,6 +2,7 @@ C:\Users\mirza\Documents\NetBeansProjects\CCHC-Clinic-System\src\main\java\com\c
 C:\Users\mirza\Documents\NetBeansProjects\CCHC-Clinic-System\src\main\java\com\cchc\servlet\UserManagementServlet.java
 C:\Users\mirza\Documents\NetBeansProjects\CCHC-Clinic-System\src\main\java\com\cchc\servlet\AdminConfigureServlet.java
 C:\Users\mirza\Documents\NetBeansProjects\CCHC-Clinic-System\src\main\java\com\cchc\servlet\AccountProfileServlet.java
+C:\Users\mirza\Documents\NetBeansProjects\CCHC-Clinic-System\src\main\java\com\cchc\servlet\EditUserServlet.java
 C:\Users\mirza\Documents\NetBeansProjects\CCHC-Clinic-System\src\main\java\com\cchc\util\DBConnectionUtil.java
 C:\Users\mirza\Documents\NetBeansProjects\CCHC-Clinic-System\src\main\java\com\cchc\dao\CsvImportLogDAO.java
 C:\Users\mirza\Documents\NetBeansProjects\CCHC-Clinic-System\src\main\java\com\cchc\dao\NotificationDAO.java

@@ -164,6 +164,15 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>EditUserServlet</servlet-name>
+        <servlet-class>com.cchc.servlet.EditUserServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>EditUserServlet</servlet-name>
+        <url-pattern>/admin/edit-user</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>PolicyServlet</servlet-name>
         <servlet-class>com.cchc.servlet.PolicyServlet</servlet-class>
     </servlet>

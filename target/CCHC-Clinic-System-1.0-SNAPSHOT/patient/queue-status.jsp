@@ -30,7 +30,7 @@
     <meta http-equiv="refresh" content="20">
 </head>
 <body>
-    <h2>My Queue Status (Today)</h2>
+    <h2>My Queue Status</h2>
     <p>Auto refresh every 20 seconds.</p>
 
     <% if (msg != null) { %>
