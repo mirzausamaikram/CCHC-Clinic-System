@@ -47,25 +47,28 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Book Appointment</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
-        <h2>Book Appointment</h2>
-        <p>Welcome, <cchc:username /></p>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+    <div class="page">
+        <div class="panel">
+            <h2>Book Appointment</h2>
 
-        <% if (request.getAttribute("errorMessage") != null) { %>
-            <p style="color:red;"><%= request.getAttribute("errorMessage") %></p>
-        <% } %>
-        <% if (request.getAttribute("error") != null) { %>
-            <p style="color:red;"><%= request.getAttribute("error") %></p>
-        <% } %>
+            <% if (request.getAttribute("errorMessage") != null) { %>
+                <div class="notice error"><%= request.getAttribute("errorMessage") %></div>
+            <% } %>
+            <% if (request.getAttribute("error") != null) { %>
+                <div class="notice error"><%= request.getAttribute("error") %></div>
+            <% } %>
 
-        <%-- Step 1: pick clinic + date + service, click Load Available Slots --%>
-        <form method="get" action="<%= request.getContextPath() %>/patient/appointments">
-            <input type="hidden" name="action" value="book" />
-            <table border="0" cellpadding="4">
-                <tr>
-                    <td><b>Clinic</b></td>
-                    <td>
+            <%-- Step 1: pick clinic + date + service --%>
+            <h3>Step 1 &mdash; Select Clinic, Date &amp; Service</h3>
+            <form method="get" action="<%= request.getContextPath() %>/patient/appointments">
+                <input type="hidden" name="action" value="book" />
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Clinic</label>
                         <select name="clinicId" onchange="this.form.submit()">
                             <option value="">-- Select Clinic --</option>
                             <%
@@ -79,13 +82,13 @@
                                 }
                             %>
                         </select>
-                    </td>
-                    <td><b>Date</b></td>
-                    <td><input type="date" name="appointmentDate" value="<%= selectedDate %>" min="<%= java.time.LocalDate.now().toString() %>" onchange="this.form.submit()" /></td>
-                </tr>
-                <tr>
-                    <td><b>Service</b></td>
-                    <td colspan="3">
+                    </div>
+                    <div class="field">
+                        <label>Date</label>
+                        <input type="date" name="appointmentDate" value="<%= selectedDate %>" min="<%= java.time.LocalDate.now().toString() %>" onchange="this.form.submit()" />
+                    </div>
+                    <div class="field">
+                        <label>Service</label>
                         <select name="selectedService" onchange="this.form.submit()">
                             <option value="">-- Select Service --</option>
                             <%
@@ -102,59 +105,48 @@
                                 }
                             %>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="4"><input type="submit" value="Load Available Slots" /></td>
-                </tr>
-            </table>
-        </form>
+                    </div>
+                </div>
+                <div style="margin-top:14px;">
+                    <input type="submit" value="Load Available Slots" />
+                </div>
+            </form>
 
-        <hr/>
-
-        <%-- Step 2: pick timeslot and book --%>
-        <form method="post" action="<%= request.getContextPath() %>/patient/appointments">
-            <input type="hidden" name="clinicId" value="<%= cid %>" />
-            <input type="hidden" name="appointmentDate" value="<%= selectedDate %>" />
-            <%
-                // carry the service selected in step 1
-                String selSvc = request.getParameter("selectedService");
-                if (selSvc == null) selSvc = "";
-            %>
-            <input type="hidden" name="clinicServiceId" value="<%= selSvc %>" />
-            <table border="0" cellpadding="4">
-                <tr>
-                    <td><b>Available Timeslot</b></td>
-                    <td>
+            <%-- Step 2: pick timeslot and book --%>
+            <h3 style="margin-top:24px;">Step 2 &mdash; Choose a Timeslot</h3>
+            <form method="post" action="<%= request.getContextPath() %>/patient/appointments">
+                <input type="hidden" name="clinicId" value="<%= cid %>" />
+                <input type="hidden" name="appointmentDate" value="<%= selectedDate %>" />
+                <%
+                    // carry the service selected in step 1
+                    String selSvc = request.getParameter("selectedService");
+                    if (selSvc == null) selSvc = "";
+                %>
+                <input type="hidden" name="clinicServiceId" value="<%= selSvc %>" />
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Available Timeslot</label>
                         <select name="timeSlot" required>
                             <option value="">-- Select Slot --</option>
                             <% for (int i = 0; i < slots.size(); i++) {
                                 String slot = slots.get(i);
-                                // if today and slot is before or equal to current time, disable it
                                 boolean isPast = isToday && slot.compareTo(currentTime) <= 0;
                             %>
                                 <option value="<%= slot %>" <%= isPast ? "disabled" : "" %>><%= slot %></option>
                             <% } %>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td><b>Notes</b></td>
-                    <td><textarea name="notes" rows="3" cols="40"></textarea></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><input type="submit" value="Book Appointment" /></td>
-                </tr>
-            </table>
-        </form>
-
-        <hr/>
-        <p>
-            <a href="<%= request.getContextPath() %>/patient/appointments?action=list">My Appointments</a> |
-            <a href="<%= request.getContextPath() %>/patient/queue-status">My Queue Status</a> |
-            <a href="<%= request.getContextPath() %>/notifications">My Notifications</a> |
-            <a href="<%= request.getContextPath() %>/patient/dashboard.jsp">Back Dashboard</a> |
-            <a href="<%= request.getContextPath() %>/logout">Logout</a>
-        </p>
+                    </div>
+                    <div class="field">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div style="margin-top:14px;">
+                    <input type="submit" value="Book Appointment" />
+                </div>
+            </form>
+        </div>
+    </div>
     </body>
 </html>
+

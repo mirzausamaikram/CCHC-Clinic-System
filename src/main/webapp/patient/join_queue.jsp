@@ -61,64 +61,56 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Join Walk-in Queue</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
-        <h1>Join Walk-in Queue</h1>
-        <p>Welcome, <%= displayName %></p>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+    <div class="page">
+        <div class="panel">
+            <h2>Join Walk-in Queue</h2>
 
-        <% if (msg != null) { %>
-        <p><b><%= msg %></b></p>
-        <% } %>
+            <% if (msg != null) { %>
+            <div class="notice success"><%= msg %></div>
+            <% } %>
 
-        <!-- Join queue form -->
-        <h3>Select Clinic and Service</h3>
-        <form method="post" action="<%= request.getContextPath() %>/patient/queue">
-            <table border="0" cellpadding="5">
-                <tr>
-                    <td>Clinic:</td>
-                    <td>
+            <h3>Select Clinic and Service</h3>
+            <form method="post" action="<%= request.getContextPath() %>/patient/queue">
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Clinic</label>
                         <select name="clinicId" required>
                             <option value="">-- Select Clinic --</option>
                             <% if (clinics != null) {
                                 for (int i = 0; i < clinics.size(); i++) {
                                     ClinicBean c = clinics.get(i);
                             %>
-                            <option value="<%= c.getClinicId() %>">
-                                <%= c.getClinicName() %>
-                            </option>
+                            <option value="<%= c.getClinicId() %>"><%= c.getClinicName() %></option>
                             <% } } %>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Service:</td>
-                    <td>
+                    </div>
+                    <div class="field">
+                        <label>Service</label>
                         <select name="serviceId" required>
                             <option value="">-- Select Service --</option>
                             <% if (services != null) {
                                 for (int i = 0; i < services.size(); i++) {
                                     ServiceBean s = services.get(i);
                             %>
-                            <option value="<%= s.getServiceId() %>">
-                                <%= s.getServiceName() %>
-                            </option>
+                            <option value="<%= s.getServiceId() %>"><%= s.getServiceName() %></option>
                             <% } } %>
                         </select>
-                    </td>
-                </tr>
-                <tr>
-                    <td>Notes:</td>
-                    <td><textarea name="notes" rows="3" cols="30"></textarea></td>
-                </tr>
-                <tr>
-                    <td colspan="2"><input type="submit" value="Join Queue" /></td>
-                </tr>
-            </table>
-        </form>
-
-        <p>
-            <a href="<%= request.getContextPath() %>/patient/queue-status">My Queue Status</a> |
-            <a href="<%= request.getContextPath() %>/patient/dashboard.jsp">Back to Dashboard</a>
-        </p>
+                    </div>
+                    <div class="field">
+                        <label>Notes</label>
+                        <textarea name="notes" rows="3"></textarea>
+                    </div>
+                </div>
+                <div style="margin-top:14px;">
+                    <input type="submit" value="Join Queue" />
+                </div>
+            </form>
+        </div>
+    </div>
     </body>
 </html>
+

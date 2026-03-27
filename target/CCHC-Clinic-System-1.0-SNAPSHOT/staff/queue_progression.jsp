@@ -24,8 +24,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Queue Progression</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+<div class="page">
         <h2>Queue Progression</h2>
 
         <% if (msg != null) { %>
@@ -85,9 +88,7 @@
             <% } %>
         </table>
 
-        <p>
-            <a href="<%= request.getContextPath() %>/staff/dashboard.jsp">Back to Dashboard</a> |
-            <a href="<%= request.getContextPath() %>/logout">Logout</a>
-        </p>
+</div>
     </body>
 </html>
+

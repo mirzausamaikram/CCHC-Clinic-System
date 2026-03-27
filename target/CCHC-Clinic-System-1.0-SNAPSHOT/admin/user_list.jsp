@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
 <%@page import="com.cchc.model.ClinicBean"%>
@@ -25,26 +25,50 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User List</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
-    <h2>User List</h2>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+    <div class="page">
+        <div class="panel">
+            <% if (msg != null) { %><div class="notice success"><%= msg %></div><% } %>
 
-    <% if (msg != null) { %><p><%= msg %></p><% } %>
+            <h3>Add User</h3>
+            <form method="post" action="<%= request.getContextPath() %>/admin/users">
+                <input type="hidden" name="action" value="add" />
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="username">Username</label>
+                        <input id="username" type="text" name="username" required />
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input id="email" type="email" name="email" required />
+                    </div>
+                    <div class="field">
+                        <label for="password">Password</label>
+                        <input id="password" type="text" name="password" required />
+                    </div>
+                    <div class="field">
+                        <label for="roleId">Role ID (1: Patient, 2: Staff, 3: Admin)</label>
+                        <input id="roleId" type="number" name="roleId" value="1" min="1" max="3" required />
+                    </div>
+                    <div class="field">
+                        <label for="clinicId">Staff Clinic ID (only for staff)</label>
+                        <input id="clinicId" type="number" name="clinicId" min="1" />
+                    </div>
+                </div>
+                <div class="actions">
+                    <input type="submit" value="Add User" />
+                </div>
+            </form>
+        </div>
 
-    <h3>Add User</h3>
-    <form method="post" action="<%= request.getContextPath() %>/admin/users">
-        <input type="hidden" name="action" value="add" />
-        Username: <input type="text" name="username" required />
-        Email: <input type="text" name="email" required />
-        Password: <input type="text" name="password" required />
-        Role ID: <input type="number" name="roleId" value="1" min="1" max="3" />
-        Staff Clinic ID (if role=STAFF): <input type="number" name="clinicId" min="1" />
-        <input type="submit" value="Add" />
-    </form>
-
-    <h3>Current Users</h3>
-    <table border="1" cellpadding="4" cellspacing="0">
+        <div class="panel">
+            <h3>Current Users</h3>
+            <table>
         <tr>
             <th>ID</th>
             <th>Role</th>
@@ -71,7 +95,7 @@
                 <form method="post" action="<%= request.getContextPath() %>/admin/users">
                     <input type="hidden" name="action" value="delete" />
                     <input type="hidden" name="userId" value="<%= u.getUserId() %>" />
-                    <input type="submit" value="Delete" />
+                    <input type="submit" value="Delete" class="btn danger" onclick="return confirm('Delete this user?');" />
                 </form>
             </td>
         </tr>
@@ -79,13 +103,10 @@
            } else { %>
           <tr><td colspan="7">No users</td></tr>
         <% } %>
-    </table>
+            </table>
+        </div>
 
-    <p>
-        <a href="<%= request.getContextPath() %>/admin/reports">Open Reports</a> |
-        <a href="<%= request.getContextPath() %>/admin/csv-import">Import CSV</a> |
-        <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back</a> |
-        <a href="<%= request.getContextPath() %>/logout">Logout</a>
-    </p>
+    </div>
 </body>
 </html>
+

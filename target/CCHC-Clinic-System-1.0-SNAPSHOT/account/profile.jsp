@@ -22,8 +22,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>My Account Profile</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
     <h2>My Account Profile</h2>
     <p>Role: <%= role %></p>
 
@@ -78,3 +80,4 @@
     </p>
 </body>
 </html>
+

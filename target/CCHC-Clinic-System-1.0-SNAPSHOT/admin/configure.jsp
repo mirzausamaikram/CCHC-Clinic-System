@@ -24,8 +24,10 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Configure Clinics & Services</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
     <h2>Configure Clinics & Services</h2>
     <% if (msg != null) { %>
         <p><b><%= msg %></b></p>
@@ -129,8 +131,6 @@
         <input type="submit" value="Save Capacity Rule" />
     </form>
 
-    <p>
-        <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back to Dashboard</a>
-    </p>
 </body>
 </html>
+

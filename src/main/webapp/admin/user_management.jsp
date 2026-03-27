@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%
@@ -21,16 +21,19 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin User Management</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
-    <h2>Admin User Management</h2>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+    <div class="page">
+        <div class="panel">
+            <% if (msg != null) { %>
+                <div class="notice success"><%= msg %></div>
+            <% } %>
 
-    <% if (msg != null) { %>
-        <p><%= msg %></p>
-    <% } %>
-
-    <table border="1" cellpadding="5" cellspacing="0">
+            <table>
         <tr>
             <th>ID</th>
             <th>Role ID</th>
@@ -51,13 +54,13 @@
             <td><%= u.getEmail() %></td>
             <td><%= u.isActive() ? "YES" : "NO" %></td>
             <td>
-                <form method="post" action="<%= request.getContextPath() %>/admin/users">
+                <form class="inline" method="post" action="<%= request.getContextPath() %>/admin/users">
                     <input type="hidden" name="userId" value="<%= u.getUserId() %>">
                     <select name="active">
                         <option value="1" <%= u.isActive() ? "selected" : "" %>>Active</option>
                         <option value="0" <%= !u.isActive() ? "selected" : "" %>>Inactive</option>
                     </select>
-                    <input type="submit" value="Save">
+                    <input type="submit" value="Save" class="btn">
                 </form>
             </td>
         </tr>
@@ -67,11 +70,10 @@
             <td colspan="6">No users found</td>
         </tr>
         <% } %>
-    </table>
+            </table>
+        </div>
 
-    <p>
-        <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back Dashboard</a> |
-        <a href="<%= request.getContextPath() %>/logout">Logout</a>
-    </p>
+    </div>
 </body>
 </html>
+

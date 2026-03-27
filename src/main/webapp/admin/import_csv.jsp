@@ -24,8 +24,11 @@
         .success { color: green; }
         .error { color: red; }
     </style>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+<div class="page">
     <h2>Import Services CSV</h2>
 
     <p>
@@ -60,10 +63,7 @@
         </table>
     </form>
 
-    <p>
-        <a href="<%= request.getContextPath() %>/admin/users">User List</a> |
-        <a href="<%= request.getContextPath() %>/admin/reports">Reports</a> |
-        <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back</a>
-    </p>
+</div>
 </body>
 </html>
+

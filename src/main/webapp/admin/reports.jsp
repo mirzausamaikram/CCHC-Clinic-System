@@ -41,8 +41,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Reports</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+<div class="page">
     <h2>Reports</h2>
 
     <% if (msg != null) { %>
@@ -124,42 +127,55 @@
 
     <br/>
 
-    <!-- simple calculation for report - utilisation results -->
+    <!-- Utilisation Dashboard -->
     <h3>Utilisation Rate</h3>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <tr><th>Item</th><th>Value</th><th>Visual</th></tr>
-        <tr>
-            <td>Total Available Slots</td>
-            <td><%= totalSlots %></td>
-            <td>-</td>
-        </tr>
-        <tr>
-            <td>Utilisation Rate</td>
-            <td><%= utilRate %> %</td>
-            <td>
-                <!-- simple bar: repeat | for each 5% -->
-                <%
-                    int bars = utilRate / 5;
-                    for (int b = 0; b < bars; b++) {
-                        out.print("|");
-                    }
-                    if (bars == 0) out.print("-");
-                %>
-                (<%= utilRate %>%)
-            </td>
-        </tr>
-    </table>
-
-    <!-- simple bar chart for utilisation rate -->
-    <h3>Utilisation Rate Chart</h3>
-    <div style="margin: 10px 0;">
-        <p><b>Utilisation Rate: <%= utilRate %>%</b></p>
-        <div style="background-color: #ddd; width: 300px; height: 30px; border: 1px solid #999;">
-            <div style="background-color: #22a922; height: 100%; width: <%= utilRate %>%; display: inline-block; text-align: center; color: white; line-height: 30px; font-weight: bold;">
-                <% if (utilRate > 10) { %><%= utilRate %>%<% } %>
+    <div class="grid" style="align-items:stretch;">
+        <div class="panel" style="text-align:center;">
+            <p class="muted" style="margin-bottom:8px;">Slot Utilisation</p>
+            <svg width="160" height="160" viewBox="0 0 160 160">
+                <!-- background track -->
+                <circle cx="80" cy="80" r="60" fill="none" stroke="var(--border)" stroke-width="16"/>
+                <!-- animated fill arc -->
+                <circle cx="80" cy="80" r="60" fill="none"
+                        stroke="var(--brand)" stroke-width="16"
+                        stroke-linecap="round"
+                        stroke-dasharray="376.99"
+                        stroke-dashoffset="376.99"
+                        transform="rotate(-90 80 80)"
+                        id="utilArc"
+                        style="transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);"/>
+                <text x="80" y="86" text-anchor="middle" font-size="26" font-weight="700" fill="var(--brand)" id="utilLabel">0%</text>
+            </svg>
+            <p class="muted" style="margin:4px 0 0;">of slots utilised</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; flex:1; align-self:stretch;">
+            <div class="stat" style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <p class="muted">Total Available Slots</p>
+                <p class="value"><%= totalSlots %></p>
+            </div>
+            <div class="stat" style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <p class="muted">Utilisation Rate</p>
+                <p class="value"><%= utilRate %>%</p>
+            </div>
+            <div class="stat" style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <p class="muted">No-Show Count</p>
+                <p class="value" style="color:var(--danger);"><%= noShow %></p>
             </div>
         </div>
     </div>
+    <script>
+        (function(){
+            var rate = <%= utilRate %>;
+            var circ = 376.99;
+            var offset = circ * (1 - rate / 100);
+            window.addEventListener('load', function(){
+                var arc = document.getElementById('utilArc');
+                var lbl = document.getElementById('utilLabel');
+                if (arc) arc.style.strokeDashoffset = offset;
+                if (lbl) lbl.textContent = rate + '%';
+            });
+        })();
+    </script>
 
     <br/>
 
@@ -195,43 +211,59 @@
 
     <br/>
 
-    <!-- simple calculation for report - no-show results -->
+    <!-- No-Show Summary -->
     <h3>No-Show Summary</h3>
-    <table border="1" cellpadding="5" cellspacing="0">
-        <tr><th>Item</th><th>Value</th><th>Visual</th></tr>
-        <tr>
-            <td>No-Show Count</td>
-            <td><%= noShow %></td>
-            <td>
+    <div class="grid" style="align-items:stretch;">
+        <div class="panel" style="text-align:center;">
+            <p class="muted" style="margin-bottom:8px;">No-Show Count</p>
+            <svg width="160" height="160" viewBox="0 0 160 160">
+                <circle cx="80" cy="80" r="60" fill="none" stroke="var(--border)" stroke-width="16"/>
+                <circle cx="80" cy="80" r="60" fill="none"
+                        stroke="var(--danger)" stroke-width="16"
+                        stroke-linecap="round"
+                        stroke-dasharray="376.99"
+                        stroke-dashoffset="376.99"
+                        transform="rotate(-90 80 80)"
+                        id="noShowArc"
+                        style="transition: stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1);"/>
+                <text x="80" y="86" text-anchor="middle" font-size="26" font-weight="700" fill="var(--danger)" id="noShowLabel">0</text>
+            </svg>
+            <p class="muted" style="margin:4px 0 0;">no-shows</p>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; flex:1; align-self:stretch;">
+            <div class="stat" style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <p class="muted">No-Show Count</p>
+                <p class="value" style="color:var(--danger);"><%= noShow %></p>
+            </div>
+            <div class="stat" style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <p class="muted">Total Slots</p>
+                <p class="value"><%= totalSlots %></p>
+            </div>
+            <div class="stat" style="flex:1; display:flex; flex-direction:column; justify-content:center;">
+                <p class="muted">No-Show Rate</p>
                 <%
-                    for (int b = 0; b < noShow && b < 20; b++) {
-                        out.print("X");
-                    }
-                    if (noShow == 0) out.print("-");
+                    int noShowPct = (totalSlots > 0) ? (noShow * 100 / totalSlots) : 0;
                 %>
-            </td>
-        </tr>
-    </table>
-
-    <!-- simple bar chart for no-show summary -->
-    <h3>No-Show Rate Chart</h3>
-    <div style="margin: 10px 0;">
-        <p><b>No-Show Count: <%= noShow %></b></p>
-        <% 
-            // calculate no-show percentage if total slots available
-            int noShowPercent = (totalSlots > 0) ? (noShow * 100 / totalSlots) : 0;
-            // keep a small visible bar when noShow > 0
-            int noShowBarWidth = noShowPercent;
-            if (noShow > 0 && noShowBarWidth < 3) {
-                noShowBarWidth = 3;
-            }
-        %>
-        <div style="background-color: #ddd; width: 300px; height: 30px; border: 1px solid #999;">
-            <div style="background-color: #cc0000; height: 100%; width: <%= noShowBarWidth %>%; display: inline-block; text-align: center; color: white; line-height: 30px; font-weight: bold;">
-                <% if (noShowPercent > 10) { %><%= noShowPercent %>%<% } %>
+                <p class="value" style="color:var(--danger);"><%= noShowPct %>%</p>
             </div>
         </div>
     </div>
+    <script>
+        (function(){
+            var count = <%= noShow %>;
+            var maxCount = 20;
+            var circ = 376.99;
+            // arc fills based on count out of maxCount (capped at full circle)
+            var fraction = Math.min(count / maxCount, 1);
+            var offset = circ * (1 - fraction);
+            window.addEventListener('load', function(){
+                var arc = document.getElementById('noShowArc');
+                var lbl = document.getElementById('noShowLabel');
+                if (arc) arc.style.strokeDashoffset = offset;
+                if (lbl) lbl.textContent = count;
+            });
+        })();
+    </script>
 
     <br/>
 
@@ -245,11 +277,7 @@
         <tr><td>Unread Notifications</td><td><%= notiCount %></td></tr>
     </table>
 
-    <p>
-        <a href="<%= request.getContextPath() %>/admin/users">User List</a> |
-        <a href="<%= request.getContextPath() %>/admin/csv-import">Import CSV</a> |
-        <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back</a> |
-        <a href="<%= request.getContextPath() %>/logout">Logout</a>
-    </p>
+</div>
 </body>
 </html>
+

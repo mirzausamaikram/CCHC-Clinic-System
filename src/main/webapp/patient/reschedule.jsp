@@ -22,8 +22,10 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Reschedule Appointment</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
         <h2>Reschedule Appointment</h2>
 
         <% if (msg != null) { %>

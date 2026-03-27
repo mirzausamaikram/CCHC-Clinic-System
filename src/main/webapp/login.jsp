@@ -23,26 +23,24 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>CCHC Login</title>
-        <style>
-            body { font-family: Arial, sans-serif; margin: 40px; }
-            .container { width: 380px; margin: 0 auto; }
-            .card { border: 1px solid #ddd; border-radius: 8px; padding: 24px; }
-            .field { margin-bottom: 12px; }
-            label { display: block; margin-bottom: 5px; }
-            input { width: 100%; padding: 8px; box-sizing: border-box; }
-            .error { color: #b00020; margin-bottom: 12px; }
-            button { padding: 10px 14px; }
-        </style>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
-        <div class="container">
-            <div class="card">
-                <h2>CCHC System Login</h2>
+        <div class="page narrow">
+            <div class="topbar">
+                <h1 class="brand">CCHC Clinic System</h1>
+                <div class="nav-links">
+                    <a class="secondary" href="<%= request.getContextPath() %>/register">Create Patient Account</a>
+                </div>
+            </div>
+            <div class="panel login-card">
+                <h2>Sign In</h2>
 
                 <% String errorMessage = (String) request.getAttribute("errorMessage"); %>
                 <% if (errorMessage != null) { %>
-                    <div class="error"><%= errorMessage %></div>
+                    <div class="notice error"><%= errorMessage %></div>
                 <% } %>
 
                 <form method="post" action="<%= request.getContextPath() %>/login">
@@ -54,9 +52,10 @@
                         <label for="password">Password</label>
                         <input type="password" id="password" name="password" required>
                     </div>
-                    <button type="submit">Login</button>
+                    <div class="actions">
+                        <button type="submit">Login</button>
+                    </div>
                 </form>
-                <p><a href="<%= request.getContextPath() %>/register">New user? Register as patient</a></p>
             </div>
         </div>
     </body>

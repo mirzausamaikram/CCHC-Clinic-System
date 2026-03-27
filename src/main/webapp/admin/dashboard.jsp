@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%@taglib prefix="cchc" uri="http://cchc/tags" %>
 <%
@@ -22,13 +22,26 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin Dashboard</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
-        <h1>Admin Dashboard</h1>
-        <p>Welcome, <cchc:username /></p>
-        <p>Role: <%= role %></p>
-        <p>Unread Notifications: <cchc:unreadCount /></p>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+        <div class="page">
+            <div class="panel">
+                <p>Welcome, <strong><cchc:username /></strong></p>
+                <div class="grid">
+                    <div class="stat">
+                        <p class="muted">Role</p>
+                        <p class="value"><%= role %></p>
+                    </div>
+                    <div class="stat">
+                        <p class="muted">Unread Notifications</p>
+                        <p class="value"><cchc:unreadCount /></p>
+                    </div>
+                </div>
+            </div>
 
         <!-- simple notification table -->
         <%
@@ -40,8 +53,9 @@
                 recentList = new java.util.ArrayList<>();
             }
         %>
-        <h3>Recent Notifications</h3>
-        <table border="1" cellpadding="5" cellspacing="0">
+            <div class="panel">
+                <h3>Recent Notifications</h3>
+                <table>
             <tr>
                 <th>Type</th>
                 <th>Message</th>
@@ -60,9 +74,9 @@
                 <td><%= rn.isRead() ? "Read" : "Unread" %></td>
                 <td>
                     <% if (!rn.isRead()) { %>
-                    <form method="post" action="<%= request.getContextPath() %>/notifications">
+                    <form class="inline" method="post" action="<%= request.getContextPath() %>/notifications">
                         <input type="hidden" name="notificationId" value="<%= rn.getNotificationId() %>" />
-                        <input type="submit" value="Mark Read" />
+                        <input type="submit" value="Mark Read" class="btn" />
                     </form>
                     <% } else { %>
                     -
@@ -73,21 +87,10 @@
                } else { %>
             <tr><td colspan="5">No notifications yet</td></tr>
             <% } %>
-        </table>
+                </table>
+            </div>
 
-        <cchc:hasRole value="ADMIN">
-            <p>Access granted for admin module.</p>
-        </cchc:hasRole>
-        <p>
-            <a href="<%= request.getContextPath() %>/admin/users">User Management</a> |
-            <a href="<%= request.getContextPath() %>/admin/reports">Reports</a> |
-            <a href="<%= request.getContextPath() %>/admin/incident-logs">Incident Logs</a> |
-            <a href="<%= request.getContextPath() %>/admin/policy">Policy Settings</a> |
-            <a href="<%= request.getContextPath() %>/admin/csv-import">CSV Import</a> |
-            <a href="<%= request.getContextPath() %>/admin/configure">Configure Clinics & Services</a> |
-            <a href="<%= request.getContextPath() %>/account/profile">My Account</a> |
-            <a href="<%= request.getContextPath() %>/notifications">My Notifications</a>
-        </p>
-        <p><a href="<%= request.getContextPath() %>/logout">Logout</a></p>
+        </div>
     </body>
 </html>
+

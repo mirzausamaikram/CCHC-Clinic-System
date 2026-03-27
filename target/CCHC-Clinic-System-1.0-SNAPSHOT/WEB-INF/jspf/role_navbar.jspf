@@ -1,0 +1,192 @@
+<%@page import="com.cchc.model.UserBean"%>
+<%
+    String cchcNavRole = String.valueOf(session.getAttribute("loginRole"));
+    String cchcNavBase = request.getContextPath();
+    UserBean cchcNavUser = (UserBean) session.getAttribute("loginUser");
+    if (cchcNavUser == null) {
+        cchcNavUser = (UserBean) session.getAttribute("user");
+    }
+    String cchcNavName = "User";
+    if (cchcNavUser != null && cchcNavUser.getUsername() != null && !cchcNavUser.getUsername().trim().isEmpty()) {
+        cchcNavName = cchcNavUser.getUsername().trim();
+    }
+    String cchcNavInitial = cchcNavName.substring(0, 1).toUpperCase();
+%>
+<style>
+    .cchc-rolebar {
+        margin: 0 0 16px 0;
+        padding: 10px 14px;
+        border-radius: 10px;
+        border: 1px solid #d6e2df;
+        background: #f5fbf9;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .cchc-rolebar .links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .cchc-rolebar a {
+        text-decoration: none;
+        color: #ffffff;
+        background: #0f766e;
+        border: 1px solid #0f766e;
+        border-radius: 8px;
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+
+    .cchc-rolebar a.secondary {
+        background: #ffffff;
+        color: #0f766e;
+    }
+
+    .cchc-profile {
+        position: relative;
+    }
+
+    .cchc-profile-toggle {
+        border: 1px solid #0f766e;
+        border-radius: 999px;
+        background: #ffffff;
+        color: #0f766e;
+        padding: 4px 10px 4px 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font: inherit;
+    }
+
+    .cchc-rolebar .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #0f766e;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .cchc-profile .identity {
+        line-height: 1.1;
+        text-align: left;
+    }
+
+    .cchc-profile .identity .name {
+        font-weight: 700;
+        color: #1e2a2f;
+    }
+
+    .cchc-profile .identity .role {
+        font-size: 0.82rem;
+        color: #567;
+    }
+
+    .cchc-profile-menu {
+        position: absolute;
+        right: 0;
+        top: calc(100% + 8px);
+        min-width: 150px;
+        background: #ffffff;
+        border: 1px solid #cfe2dd;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(15, 30, 45, 0.14);
+        padding: 6px;
+        display: none;
+        z-index: 40;
+    }
+
+    .cchc-profile-menu a {
+        display: block;
+        background: #ffffff;
+        color: #1e2a2f;
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 10px;
+    }
+
+    .cchc-profile-menu a:hover {
+        background: #eef7f4;
+        color: #0f766e;
+    }
+
+    .cchc-profile.open .cchc-profile-menu {
+        display: block;
+    }
+</style>
+<div class="cchc-rolebar">
+    <div class="links">
+        <% if ("PATIENT".equals(cchcNavRole)) { %>
+            <a href="<%= cchcNavBase %>/patient/dashboard.jsp">Dashboard</a>
+            <a href="<%= cchcNavBase %>/patient/appointments?action=book">Book Appointment</a>
+            <a href="<%= cchcNavBase %>/my_appointments">My Appointments</a>
+            <a href="<%= cchcNavBase %>/patient/queue">Join Queue</a>
+            <a href="<%= cchcNavBase %>/patient/queue-status">Queue Status</a>
+            <a href="<%= cchcNavBase %>/notifications">Notifications</a>
+        <% } else if ("STAFF".equals(cchcNavRole)) { %>
+            <a href="<%= cchcNavBase %>/staff/dashboard.jsp">Dashboard</a>
+            <a href="<%= cchcNavBase %>/staff/attendance">Attendance</a>
+            <a href="<%= cchcNavBase %>/staff/queue">Queue Management</a>
+            <a href="<%= cchcNavBase %>/staff/queue-progression">Queue Progression</a>
+            <a href="<%= cchcNavBase %>/staff/approval">Approvals</a>
+            <a href="<%= cchcNavBase %>/staff/report-issue">Report Issue</a>
+            <a href="<%= cchcNavBase %>/notifications">Notifications</a>
+        <% } else if ("ADMIN".equals(cchcNavRole)) { %>
+            <a href="<%= cchcNavBase %>/admin/dashboard.jsp">Dashboard</a>
+            <a href="<%= cchcNavBase %>/admin/users">Users</a>
+            <a href="<%= cchcNavBase %>/admin/reports">Reports</a>
+            <a href="<%= cchcNavBase %>/admin/incident-logs">Incident Logs</a>
+            <a href="<%= cchcNavBase %>/admin/policy">Policy</a>
+            <a href="<%= cchcNavBase %>/admin/csv-import">CSV Import</a>
+            <a href="<%= cchcNavBase %>/notifications">Notifications</a>
+        <% } else { %>
+            <a href="<%= cchcNavBase %>/notifications">Notifications</a>
+        <% } %>
+    </div>
+    <div class="cchc-profile" id="cchcProfileMenu">
+        <button type="button" class="cchc-profile-toggle" id="cchcProfileToggle" aria-haspopup="true" aria-expanded="false">
+            <span class="avatar"><%= cchcNavInitial %></span>
+            <span class="identity">
+                <span class="name"><%= cchcNavName %></span><br>
+                <span class="role"><%= cchcNavRole %></span>
+            </span>
+        </button>
+        <div class="cchc-profile-menu" id="cchcProfileLinks">
+            <a href="<%= cchcNavBase %>/account/profile">Profile</a>
+            <a href="<%= cchcNavBase %>/logout">Logout</a>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        var wrap = document.getElementById('cchcProfileMenu');
+        var btn = document.getElementById('cchcProfileToggle');
+        if (!wrap || !btn) {
+            return;
+        }
+
+        btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var isOpen = wrap.classList.toggle('open');
+            btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!wrap.contains(e.target)) {
+                wrap.classList.remove('open');
+                btn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    })();
+</script>

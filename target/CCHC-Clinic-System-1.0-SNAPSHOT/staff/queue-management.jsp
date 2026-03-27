@@ -43,8 +43,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Queue Management</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+<div class="page">
         <h1>Queue Management</h1>
         <p>Welcome, <cchc:username /></p>
         <% if (staff != null) { %>
@@ -166,10 +169,7 @@
             <% } %>
         </table>
 
-        <p>
-            <a href="<%= request.getContextPath() %>/notifications">My Notifications</a> |
-            <a href="<%= request.getContextPath() %>/staff/dashboard.jsp">Back Dashboard</a> |
-            <a href="<%= request.getContextPath() %>/logout">Logout</a>
-        </p>
+</div>
     </body>
 </html>
+

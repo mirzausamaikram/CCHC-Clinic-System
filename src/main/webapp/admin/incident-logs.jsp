@@ -23,8 +23,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Incident Logs</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+<div class="page">
     <h2>Incident Logs</h2>
 
     <% if (msg != null) { %>
@@ -97,9 +100,7 @@
         <% } %>
     </table>
 
-    <p>
-        <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back Dashboard</a> |
-        <a href="<%= request.getContextPath() %>/logout">Logout</a>
-    </p>
+</div>
 </body>
 </html>
+

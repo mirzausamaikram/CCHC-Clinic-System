@@ -4,23 +4,56 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+    <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
-    <h2>Register</h2>
-    <% if (request.getAttribute("msg") != null) { %>
-        <p style="color:red;"><%= request.getAttribute("msg") %></p>
-    <% } %>
-    <form method="post" action="<%= request.getContextPath() %>/register">
-        <table border="1" cellpadding="5" cellspacing="0">
-            <tr><td>Username</td><td><input type="text" name="username" /></td></tr>
-            <tr><td>Email</td><td><input type="email" name="email" /></td></tr>
-            <tr><td>Password</td><td><input type="password" name="password" /></td></tr>
-            <tr><td>Full Name</td><td><input type="text" name="fullName" /></td></tr>
-            <tr><td>Phone</td><td><input type="text" name="phone" /></td></tr>
-            <tr><td colspan="2"><input type="submit" value="Register" /></td></tr>
-        </table>
-    </form>
-    <p><a href="<%= request.getContextPath() %>/login.jsp">Back to Login</a></p>
+    <div class="page narrow">
+        <div class="topbar">
+            <h1 class="brand">CCHC Clinic System</h1>
+            <div class="nav-links">
+                <a class="secondary" href="<%= request.getContextPath() %>/login.jsp">Back to Login</a>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Patient Registration</h2>
+            <p class="muted">Complete all fields to create your patient account.</p>
+
+            <% if (request.getAttribute("msg") != null) { %>
+                <div class="notice error"><%= request.getAttribute("msg") %></div>
+            <% } %>
+
+            <form method="post" action="<%= request.getContextPath() %>/register">
+                <div class="form-grid">
+                    <div class="field">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required />
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required />
+                    </div>
+                    <div class="field">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required minlength="6" />
+                    </div>
+                    <div class="field">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required />
+                    </div>
+                    <div class="field">
+                        <label for="phone">Phone</label>
+                        <input type="text" id="phone" name="phone" required />
+                    </div>
+                </div>
+                <div class="actions">
+                    <input type="submit" value="Register" />
+                    <a class="btn secondary" href="<%= request.getContextPath() %>/login.jsp">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="com.cchc.model.NotificationBean"%>
 <%@page import="com.cchc.model.UserBean"%>
@@ -32,18 +32,22 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>My Notifications</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
-        <h1>My Notifications</h1>
-        <p>Welcome, <cchc:username /></p>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+        <div class="page">
+            <div class="panel">
+                <p>Welcome, <strong><cchc:username /></strong></p>
 
         <% String msg = (String) request.getAttribute("errorMessage"); %>
         <% if (msg != null) { %>
-            <p><%= msg %></p>
+            <div class="notice error"><%= msg %></div>
         <% } %>
 
-        <table border="1" cellpadding="6" cellspacing="0">
+                <table>
             <tr>
                 <th>ID</th>
                 <th>Type</th>
@@ -65,7 +69,7 @@
                         <td><%= notification.isRead() ? "Read" : "Unread" %></td>
                         <td>
                             <% if (!notification.isRead()) { %>
-                                <form method="post" action="<%= request.getContextPath() %>/notifications">
+                                <form class="inline" method="post" action="<%= request.getContextPath() %>/notifications">
                                     <input type="hidden" name="notificationId" value="<%= notification.getNotificationId() %>" />
                                     <button type="submit">Mark Read</button>
                                 </form>
@@ -80,18 +84,10 @@
                     <td colspan="7">No notifications available.</td>
                 </tr>
             <% } %>
-        </table>
+                </table>
+            </div>
 
-        <p>
-            <% if ("PATIENT".equals(role)) { %>
-                <a href="<%= request.getContextPath() %>/patient/dashboard.jsp">Back Dashboard</a>
-            <% } else if ("STAFF".equals(role)) { %>
-                <a href="<%= request.getContextPath() %>/staff/dashboard.jsp">Back Dashboard</a>
-            <% } else { %>
-                <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back Dashboard</a>
-            <% } %>
-            |
-            <a href="<%= request.getContextPath() %>/logout">Logout</a>
-        </p>
+        </div>
     </body>
 </html>
+

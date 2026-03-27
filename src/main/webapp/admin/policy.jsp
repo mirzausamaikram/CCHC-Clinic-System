@@ -24,36 +24,39 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Policy Settings</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
 </head>
 <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+<div class="page">
     <h2>Policy Settings</h2>
 
     <% if (msg != null) { %>
-    <p><%= msg %></p>
+    <div class="notice success"><%= msg %></div>
     <% } %>
 
-    <form method="post" action="<%= request.getContextPath() %>/admin/policy">
-        <table border="1" cellpadding="5" cellspacing="0">
-            <tr>
-                <td>maxBookingsPerPatient</td>
-                <td><input type="number" name="maxBookingsPerPatient" min="1" value="<%= max == null ? "3" : max %>" required /></td>
-            </tr>
-            <tr>
-                <td>cancellationCutoffHours</td>
-                <td><input type="number" name="cancellationCutoffHours" min="1" value="<%= cut == null ? "24" : cut %>" required /></td>
-            </tr>
-            <tr>
-                <td>queueEnabled (Global)</td>
-                <td>
+    <div class="panel">
+        <form method="post" action="<%= request.getContextPath() %>/admin/policy">
+            <div class="form-grid">
+                <div class="field">
+                    <label>Max Bookings Per Patient</label>
+                    <input type="number" name="maxBookingsPerPatient" min="1" value="<%= max == null ? "3" : max %>" required />
+                </div>
+                <div class="field">
+                    <label>Cancellation Cutoff (hours)</label>
+                    <input type="number" name="cancellationCutoffHours" min="1" value="<%= cut == null ? "24" : cut %>" required />
+                </div>
+                <div class="field">
+                    <label>Queue Enabled (Global)</label>
                     <select name="queueEnabled">
                         <option value="1" <%= "1".equals(queueEnabled) ? "selected" : "" %>>Enabled</option>
                         <option value="0" <%= "0".equals(queueEnabled) ? "selected" : "" %>>Disabled</option>
                     </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Clinic Queue Toggle</td>
-                <td>
+                </div>
+            </div>
+            <div class="form-grid" style="margin-top:16px;">
+                <div class="field">
+                    <label>Clinic Queue Toggle &mdash; Select Clinic</label>
                     <select name="queueClinicId">
                         <option value="">No clinic update</option>
                         <% if (clinicList != null) {
@@ -63,21 +66,22 @@
                         <option value="<%= c.getClinicId() %>"><%= c.getClinicName() %></option>
                         <% } } %>
                     </select>
+                </div>
+                <div class="field">
+                    <label>Clinic Queue Status</label>
                     <select name="clinicQueueEnabled">
                         <option value="1">Enable</option>
                         <option value="0">Disable</option>
                     </select>
-                </td>
-            </tr>
-            <tr>
-                <td colspan="2"><input type="submit" value="Save" /></td>
-            </tr>
-        </table>
-    </form>
+                </div>
+            </div>
+            <div style="margin-top:18px;">
+                <input type="submit" value="Save Settings" />
+            </div>
+        </form>
+    </div>
 
-    <p>
-        <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back Dashboard</a> |
-        <a href="<%= request.getContextPath() %>/logout">Logout</a>
-    </p>
+</div>
 </body>
 </html>
+

@@ -33,8 +33,11 @@
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>Daily Appointments</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+<div class="page">
         <h2>Daily Appointments</h2>
 
         <form method="get" action="<%= request.getContextPath() %>/staff/attendance">
@@ -161,9 +164,7 @@
             <% } %>
         </table>
 
-        <p>
-            <a href="<%= request.getContextPath() %>/staff/dashboard.jsp">Back to Dashboard</a> |
-            <a href="<%= request.getContextPath() %>/logout">Logout</a>
-        </p>
+</div>
     </body>
 </html>
+

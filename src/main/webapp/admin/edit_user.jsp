@@ -1,4 +1,4 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%
     // check admin
@@ -22,55 +22,62 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Edit User</title>
+        <link rel="stylesheet" href="<%= request.getContextPath() %>/assets/css/app.css">
     </head>
     <body>
-        <h2>Edit User</h2>
+    <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
+        <div class="page narrow">
+            <div class="panel">
 
         <% if (errorMsg != null) { %>
-            <p style="color: red;"><b><%= errorMsg %></b></p>
+            <div class="notice error"><%= errorMsg %></div>
         <% } %>
 
         <% if (user != null) { %>
             <form method="post" action="<%= request.getContextPath() %>/admin/edit-user">
                 <input type="hidden" name="userId" value="<%= user.getUserId() %>" />
-                
-                <table border="0" cellpadding="5">
-                    <tr>
-                        <td><b>Username (read-only)</b></td>
-                        <td><input type="text" value="<%= user.getUsername() %>" disabled /></td>
-                    </tr>
-                    <tr>
-                        <td><b>Full Name</b></td>
-                        <td><input type="text" name="fullName" value="<%= user.getFullName() != null ? user.getFullName() : "" %>" size="40" /></td>
-                    </tr>
-                    <tr>
-                        <td><b>Email</b></td>
-                        <td><input type="email" name="email" value="<%= user.getEmail() %>" required size="40" /></td>
-                    </tr>
-                    <tr>
-                        <td><b>Phone</b></td>
-                        <td><input type="text" name="phone" value="<%= user.getPhone() != null ? user.getPhone() : "" %>" size="40" /></td>
-                    </tr>
-                    <tr>
-                        <td><b>Reset Password (optional)</b></td>
-                        <td><input type="password" name="newPassword" size="40" /></td>
-                    </tr>
-                    <tr>
-                        <td><b>Confirm New Password</b></td>
-                        <td><input type="password" name="confirmPassword" size="40" /></td>
-                    </tr>
-                    <tr>
-                        <td colspan="2">
-                            <input type="submit" value="Save Changes" />
-                            <a href="<%= request.getContextPath() %>/admin/users">Cancel</a>
-                        </td>
-                    </tr>
-                </table>
+
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Username (read-only)</label>
+                        <input type="text" value="<%= user.getUsername() %>" disabled />
+                    </div>
+                    <div class="field">
+                        <label for="fullName">Full Name</label>
+                        <input id="fullName" type="text" name="fullName" value="<%= user.getFullName() != null ? user.getFullName() : "" %>" />
+                    </div>
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input id="email" type="email" name="email" value="<%= user.getEmail() %>" required />
+                    </div>
+                    <div class="field">
+                        <label for="phone">Phone</label>
+                        <input id="phone" type="text" name="phone" value="<%= user.getPhone() != null ? user.getPhone() : "" %>" />
+                    </div>
+                    <div class="field">
+                        <label for="newPassword">Reset Password (optional)</label>
+                        <input id="newPassword" type="password" name="newPassword" />
+                    </div>
+                    <div class="field">
+                        <label for="confirmPassword">Confirm New Password</label>
+                        <input id="confirmPassword" type="password" name="confirmPassword" />
+                    </div>
+                </div>
+                <div class="actions">
+                    <input type="submit" value="Save Changes" />
+                    <a class="btn secondary" href="<%= request.getContextPath() %>/admin/users">Cancel</a>
+                </div>
             </form>
         <% } else { %>
-            <p>User not found.</p>
-            <a href="<%= request.getContextPath() %>/admin/users">Back to User List</a>
+            <p class="notice error">User not found.</p>
+            <div class="actions">
+                <a class="btn" href="<%= request.getContextPath() %>/admin/users">Back to User List</a>
+            </div>
         <% } %>
+            </div>
+        </div>
     </body>
 </html>
+
