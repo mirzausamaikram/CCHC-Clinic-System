@@ -95,7 +95,6 @@ public class AppointmentBean implements Serializable {
         this.createdAt = createdAt;
     }
 
-    // compatibility for old code
     public int getPatientId() {
         return userId;
     }

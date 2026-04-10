@@ -16,7 +16,6 @@ import java.util.Set;
 public class AppointmentDAO {
 
     public int getTotalCount() throws SQLException {
-        // simple count
         String sql = "SELECT COUNT(*) c FROM appointments";
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -29,7 +28,6 @@ public class AppointmentDAO {
     }
 
     public int getCompletedCount() throws SQLException {
-        // simple count
         String sql = "SELECT COUNT(*) c FROM appointments WHERE status = 'COMPLETED'";
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -42,7 +40,6 @@ public class AppointmentDAO {
     }
 
     public int getNoShowCount() throws SQLException {
-        // simple count
         String sql = "SELECT COUNT(*) c FROM appointments WHERE status = 'NO_SHOW'";
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -55,7 +52,6 @@ public class AppointmentDAO {
     }
 
     public List<AppointmentBean> getMyAppointments(int userId) throws SQLException {
-        // get data from database
         String sql = "SELECT * FROM appointments WHERE user_id = ? ORDER BY appointment_date DESC, appointment_id DESC";
 
         List<AppointmentBean> list = new ArrayList<>();
@@ -75,7 +71,6 @@ public class AppointmentDAO {
     }
 
     public boolean cancelAppointment(int appointmentId, int userId) throws SQLException {
-        // simple update
         String sql = "UPDATE appointments SET status = 'CANCELLED' "
             + "WHERE appointment_id = ? AND user_id = ? "
             + "AND status NOT IN ('COMPLETED','CANCELLED')";
@@ -90,7 +85,6 @@ public class AppointmentDAO {
     }
 
     public boolean updateAppointmentDateAndTime(int appointmentId, int userId, Date newDate, Time newStart, Time newEnd) throws SQLException {
-        // simple reschedule for patient
         String sql = "UPDATE appointments SET appointment_date = ?, time_slot = ? "
             + "WHERE appointment_id = ? AND user_id = ? "
             + "AND status NOT IN ('COMPLETED','CANCELLED')";
@@ -145,7 +139,6 @@ public class AppointmentDAO {
         return 0;
     }
 
-    // simple insert method name as requested
     public int bookAppointment(AppointmentBean appointment) throws SQLException {
         return create(appointment);
     }
@@ -199,7 +192,6 @@ public class AppointmentDAO {
         return list;
     }
 
-    // simple shared method for staff approval page - shows BOOKED and PENDING
     public List<AppointmentBean> getAllBookingsForStaff(int clinicId) throws SQLException {
         String sql = "SELECT * FROM appointments WHERE clinic_id = ? AND status IN ('BOOKED', 'PENDING') ORDER BY appointment_date ASC, appointment_id ASC";
         List<AppointmentBean> list = new ArrayList<>();
@@ -217,7 +209,6 @@ public class AppointmentDAO {
         return list;
     }
 
-    // simple shared method for staff attendance/queue page
     public List<AppointmentBean> getTodayAppointments(int clinicId) throws SQLException {
         String sql = "SELECT * FROM appointments WHERE clinic_id = ? AND appointment_date = CURDATE() ORDER BY appointment_id ASC";
         List<AppointmentBean> list = new ArrayList<>();
@@ -235,12 +226,10 @@ public class AppointmentDAO {
         return list;
     }
 
-    // simple approval list for staff
     public List<AppointmentBean> findPendingByClinic(int clinicId) throws SQLException {
         return getAllBookingsForStaff(clinicId);
     }
 
-    // simple staff action
     public boolean approveBooking(int appointmentId) throws SQLException {
         String sql = "UPDATE appointments SET status = 'CONFIRMED' WHERE appointment_id = ? AND status = 'BOOKED'";
         try (Connection con = DBConnectionUtil.getConnection();
@@ -250,7 +239,6 @@ public class AppointmentDAO {
         }
     }
 
-    // simple staff action
     public boolean rejectBooking(int appointmentId, String reason) throws SQLException {
         String sql = "UPDATE appointments SET status = 'REJECTED', notes = CONCAT(IFNULL(notes,''), ' [Rejected: ', ?, ']') "
             + "WHERE appointment_id = ? AND status = 'BOOKED'";
@@ -262,7 +250,6 @@ public class AppointmentDAO {
         }
     }
 
-    // simple policy check for booking
     public int countActiveBookingsByPatient(int patientId) throws SQLException {
         String sql = "SELECT COUNT(*) c FROM appointments WHERE user_id = ? "
                 + "AND status IN ('BOOKED','CONFIRMED','PENDING')";
@@ -278,7 +265,6 @@ public class AppointmentDAO {
         return 0;
     }
 
-    // simple limited quota check for booking
     public int countByClinicServiceAndDate(int clinicServiceId, Date d) throws SQLException {
         String sql = "SELECT COUNT(*) c FROM appointments WHERE service_id = ? AND appointment_date = ? "
                 + "AND status IN ('BOOKED','CONFIRMED','PENDING')";
@@ -312,7 +298,6 @@ public class AppointmentDAO {
         return 0;
     }
 
-    // simple slot quota check for staff approval
     public int countByClinicServiceDateAndSlotExcluding(int clinicId, int serviceId, Date d, String timeSlot, int excludeAppointmentId) throws SQLException {
         String sql = "SELECT COUNT(*) c FROM appointments WHERE clinic_id = ? AND service_id = ? "
                 + "AND appointment_date = ? AND time_slot = ? AND appointment_id <> ? "
@@ -378,7 +363,6 @@ public class AppointmentDAO {
         return set;
     }
 
-    // simple notification system - get tomorrow appointments for a patient
     public List<AppointmentBean> getTomorrowAppointments(int patientId) throws SQLException {
         java.util.Calendar cal = java.util.Calendar.getInstance();
         cal.add(java.util.Calendar.DATE, 1);

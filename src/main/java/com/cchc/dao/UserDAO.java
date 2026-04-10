@@ -12,7 +12,6 @@ import java.util.List;
 public class UserDAO {
 
     public int addSimpleUser(String username, String email, String password, int roleId, boolean active) throws SQLException {
-        // simple insert
         String sql = "INSERT INTO users (role_id, username, email, password_hash, is_active) VALUES (?, ?, ?, ?, ?)";
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -48,7 +47,6 @@ public class UserDAO {
     }
 
     public List<UserBean> getAllUsers() throws SQLException {
-        // get data from database
         String sql = "SELECT user_id, role_id, username, email, full_name, phone, password_hash, is_active, created_at FROM users ORDER BY user_id DESC";
         List<UserBean> list = new ArrayList<>();
 
@@ -73,7 +71,6 @@ public class UserDAO {
         return list;
     }
 
-    // get single user by ID
     public UserBean getUserById(int userId) throws SQLException {
         String sql = "SELECT user_id, role_id, username, email, full_name, phone, password_hash, is_active, created_at FROM users WHERE user_id = ?";
         try (Connection con = DBConnectionUtil.getConnection();
@@ -189,7 +186,6 @@ public class UserDAO {
         return 0;
     }
 
-    // simple helper for dropdowns
     public List<UserBean> findActiveByRoleName(String roleName) throws SQLException {
         String sql = "SELECT u.user_id, u.role_id, u.username, u.email, u.full_name, u.phone, u.password_hash, u.is_active, u.created_at "
                 + "FROM users u JOIN roles r ON r.role_id = u.role_id "
@@ -228,9 +224,7 @@ public class UserDAO {
         }
     }
 
-    // admin update user: full_name, email, phone, and optional password
     public boolean updateUser(int userId, String fullName, String email, String phone, String newPassword) throws SQLException {
-        // if new password is provided, update with password
         if (newPassword != null && !newPassword.isEmpty()) {
             String sql = "UPDATE users SET full_name = ?, email = ?, phone = ?, password_hash = ? WHERE user_id = ?";
             try (Connection con = DBConnectionUtil.getConnection();
@@ -243,7 +237,6 @@ public class UserDAO {
                 return ps.executeUpdate() > 0;
             }
         } else {
-            // update without password
             String sql = "UPDATE users SET full_name = ?, email = ?, phone = ? WHERE user_id = ?";
             try (Connection con = DBConnectionUtil.getConnection();
                  PreparedStatement ps = con.prepareStatement(sql)) {
@@ -256,7 +249,6 @@ public class UserDAO {
         }
     }
 
-    // simple profile update
     public boolean updateProfile(UserBean user) throws SQLException {
         String sql = "UPDATE users SET email = ?, username = ? WHERE user_id = ?";
         try (Connection con = DBConnectionUtil.getConnection();
@@ -268,7 +260,6 @@ public class UserDAO {
         }
     }
 
-    // simple password update
     public boolean updatePassword(int userId, String newPassword) throws SQLException {
         String sql = "UPDATE users SET password_hash = ? WHERE user_id = ?";
         try (Connection con = DBConnectionUtil.getConnection();

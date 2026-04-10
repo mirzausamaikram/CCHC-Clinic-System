@@ -95,10 +95,8 @@ public class PolicyServlet extends HttpServlet {
         }
 
         try {
-            // simple policy save
             settingDao.setValue("maxBookingsPerPatient", max, admin.getUserId());
             settingDao.setValue("cancellationCutoffHours", cut, admin.getUserId());
-            // keep old key also for compatibility
             settingDao.setValue("MAX_DAILY_APPOINTMENTS_PER_PATIENT", max, admin.getUserId());
 
             if (qGlobal != null && !qGlobal.isEmpty()) {

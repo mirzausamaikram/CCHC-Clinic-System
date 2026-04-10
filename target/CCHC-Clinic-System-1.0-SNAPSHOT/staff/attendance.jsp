@@ -7,7 +7,6 @@
 <%@page import="com.cchc.model.ClinicBean"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%
-    // simple session check
     UserBean user = (UserBean) session.getAttribute("loginUser");
     if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");

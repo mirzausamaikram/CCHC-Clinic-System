@@ -1,7 +1,6 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%
-    // check admin
     UserBean admin = (UserBean) session.getAttribute("loginUser");
     if (admin == null) {
         admin = (UserBean) session.getAttribute("user");

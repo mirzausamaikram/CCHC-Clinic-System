@@ -28,7 +28,6 @@ import java.util.Map;
 
 public class AttendanceServlet extends HttpServlet {
 
-    // simple attendance for staff
     private AppointmentDAO apptDao = new AppointmentDAO();
     private StaffProfileDAO staffDao = new StaffProfileDAO();
     private NotificationDAO nDao = new NotificationDAO();
@@ -40,7 +39,6 @@ public class AttendanceServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // check session
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -55,7 +53,6 @@ public class AttendanceServlet extends HttpServlet {
 
         UserBean user = (UserBean) session.getAttribute("loginUser");
 
-        // get staff clinic from db
         StaffProfileBean profile = null;
         try {
             profile = staffDao.findByUserId(user.getUserId());
@@ -108,7 +105,6 @@ public class AttendanceServlet extends HttpServlet {
         request.setAttribute("selectedClinicId", selectedClinicId);
 
         try {
-            // load selected date appointments and queue for this clinic
             List<AppointmentBean> list = apptDao.findByClinicAndDate(selectedClinicId, useDate);
             List<QueueEntryBean> queueList = qDao.findWaitingByClinicAndDate(selectedClinicId, useDate);
 
@@ -147,7 +143,6 @@ public class AttendanceServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // simple attendance for staff
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -173,7 +168,6 @@ public class AttendanceServlet extends HttpServlet {
             id = 0;
         }
 
-        // check status is one of the allowed values
         if (id <= 0 || status == null ||
                 (!status.equals("ARRIVED") && !status.equals("COMPLETED") && !status.equals("NO_SHOW") && !status.equals("CANCELLED"))) {
             response.sendRedirect(request.getContextPath() + "/staff/attendance?msg=Invalid+input"

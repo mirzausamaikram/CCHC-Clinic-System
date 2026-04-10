@@ -6,7 +6,6 @@
 <%@page import="com.cchc.model.UserBean"%>
 <%@taglib prefix="cchc" uri="http://cchc/tags" %>
 <%
-    // simple check
     UserBean user = (UserBean) session.getAttribute("user");
     if (user == null) {
         user = (UserBean) session.getAttribute("loginUser");
@@ -37,7 +36,6 @@
     if (slots == null) {
         slots = new ArrayList<>();
     }
-    // simple past-slot check: disable slots before now when date is today
     boolean isToday = Boolean.TRUE.equals(request.getAttribute("isToday"));
     String currentTime = (String) request.getAttribute("currentTime");
     if (currentTime == null) currentTime = "00:00";
@@ -62,7 +60,6 @@
                 <div class="notice error"><%= request.getAttribute("error") %></div>
             <% } %>
 
-            <%-- Step 1: pick clinic + date + service --%>
             <h3>Step 1 &mdash; Select Clinic, Date &amp; Service</h3>
             <form method="get" action="<%= request.getContextPath() %>/patient/appointments">
                 <input type="hidden" name="action" value="book" />
@@ -112,13 +109,11 @@
                 </div>
             </form>
 
-            <%-- Step 2: pick timeslot and book --%>
             <h3 style="margin-top:24px;">Step 2 &mdash; Choose a Timeslot</h3>
             <form method="post" action="<%= request.getContextPath() %>/patient/appointments">
                 <input type="hidden" name="clinicId" value="<%= cid %>" />
                 <input type="hidden" name="appointmentDate" value="<%= selectedDate %>" />
                 <%
-                    // carry the service selected in step 1
                     String selSvc = request.getParameter("selectedService");
                     if (selSvc == null) selSvc = "";
                 %>

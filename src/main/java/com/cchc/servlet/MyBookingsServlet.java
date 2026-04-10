@@ -27,7 +27,6 @@ public class MyBookingsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // check if user is logged in
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -43,7 +42,6 @@ public class MyBookingsServlet extends HttpServlet {
         UserBean user = (UserBean) session.getAttribute("loginUser");
 
         try {
-            // get data from database
             List<AppointmentBean> apptList = dao.getMyAppointments(user.getUserId());
             String msg = request.getParameter("msg");
             request.setAttribute("apptList", apptList);
@@ -107,7 +105,6 @@ public class MyBookingsServlet extends HttpServlet {
                 }
 
                 dao.cancelAppointment(id, user.getUserId());
-                // simple notification system - appointment cancelled
                 NotificationBean nb = new NotificationBean();
                 nb.setUserId(user.getUserId());
                 nb.setTitle("Appointment Cancelled");
@@ -117,7 +114,6 @@ public class MyBookingsServlet extends HttpServlet {
                 nb.setRead(false);
                 nDao.create(nb);
             } catch (SQLException e) {
-                // ignore for now
             }
         }
 

@@ -36,7 +36,6 @@ public class SystemSettingDAO {
         }
     }
 
-    // simple save setting (update first, then insert)
     public boolean setValue(String settingKey, String settingValue, int updatedByUserId) throws SQLException {
         boolean ok = updateValue(settingKey, settingValue, updatedByUserId);
         if (ok) {

@@ -67,7 +67,6 @@ public class LoginServlet extends HttpServlet {
 
             switch (roleName) {
                 case "PATIENT":
-                    // simple notification system - check tomorrow appointments and create reminder
                     try {
                         PatientProfileDAO ppDao = new PatientProfileDAO();
                         PatientProfileBean pp = ppDao.findByUserId(user.getUserId());
@@ -90,7 +89,6 @@ public class LoginServlet extends HttpServlet {
                             }
                         }
                     } catch (Exception e) {
-                        // ignore for now
                     }
                     response.sendRedirect(request.getContextPath() + "/patient/dashboard.jsp");
                     break;

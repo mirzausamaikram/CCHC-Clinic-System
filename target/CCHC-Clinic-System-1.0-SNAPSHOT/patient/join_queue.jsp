@@ -4,7 +4,6 @@
 <%@page import="com.cchc.model.ClinicBean"%>
 <%@page import="com.cchc.model.ServiceBean"%>
 <%
-    // Check if patient is logged in
     UserBean user = (UserBean) session.getAttribute("user");
     if (user == null) {
         user = (UserBean) session.getAttribute("loginUser");
@@ -32,12 +31,10 @@
         displayName = user.getEmail();
     }
 
-    // Get clinics and services from request
     List<ClinicBean> clinics = (List<ClinicBean>) request.getAttribute("clinics");
     List<ServiceBean> services = (List<ServiceBean>) request.getAttribute("services");
     String msg = (String) request.getAttribute("msg");
     
-    // Load if not set
     if (clinics == null) {
         try {
             com.cchc.dao.ClinicDAO clinicDao = new com.cchc.dao.ClinicDAO();

@@ -10,7 +10,6 @@
 <%@page import="com.cchc.model.UserBean"%>
 <%@taglib prefix="cchc" uri="http://cchc/tags" %>
 <%
-    // simple check
     UserBean user = (UserBean) session.getAttribute("user");
     if (user == null) {
         user = (UserBean) session.getAttribute("loginUser");

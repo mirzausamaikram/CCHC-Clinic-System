@@ -20,7 +20,6 @@ public class NotificationServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // simple check
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -29,7 +28,6 @@ public class NotificationServlet extends HttpServlet {
 
         UserBean user = (UserBean) session.getAttribute("loginUser");
         try {
-            // get data from database
             List<NotificationBean> list = dao.findByUserId(user.getUserId());
             request.setAttribute("notifications", list);
             request.getRequestDispatcher("/notifications.jsp").forward(request, response);

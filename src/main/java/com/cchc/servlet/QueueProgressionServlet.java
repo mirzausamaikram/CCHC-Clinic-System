@@ -20,7 +20,6 @@ import java.util.List;
 
 public class QueueProgressionServlet extends HttpServlet {
 
-    // simple queue management
     private QueueEntryDAO queueDao = new QueueEntryDAO();
     private StaffProfileDAO staffDao = new StaffProfileDAO();
     private PatientProfileDAO patientDao = new PatientProfileDAO();
@@ -30,7 +29,6 @@ public class QueueProgressionServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // check session
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -45,7 +43,6 @@ public class QueueProgressionServlet extends HttpServlet {
 
         UserBean user = (UserBean) session.getAttribute("loginUser");
 
-        // get staff clinic id
         StaffProfileBean profile = null;
         try {
             profile = staffDao.findByUserId(user.getUserId());
@@ -61,11 +58,9 @@ public class QueueProgressionServlet extends HttpServlet {
             return;
         }
 
-        // store clinic id in request for JSP use
         request.setAttribute("clinicId", profile.getClinicId());
 
         try {
-            // simple queue management - load today queue
             List<QueueEntryBean> list = queueDao.getWaitingQueue(profile.getClinicId());
             request.setAttribute("queueList", list);
         } catch (SQLException e) {
@@ -84,7 +79,6 @@ public class QueueProgressionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // simple queue management
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -101,7 +95,6 @@ public class QueueProgressionServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         if ("callNext".equals(action)) {
-            // simple queue management - call next WAITING patient
             StaffProfileBean profile = null;
             try {
                 profile = staffDao.findByUserId(user.getUserId());
@@ -141,7 +134,6 @@ public class QueueProgressionServlet extends HttpServlet {
             }
 
         } else {
-            // handle skip or markServed for a specific queue entry
             String idStr = request.getParameter("queueId");
             int queueId = 0;
             try {

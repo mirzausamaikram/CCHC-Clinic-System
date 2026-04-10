@@ -28,7 +28,6 @@ public class ClinicServiceDAO {
         return list;
     }
 
-    // simple lookup by clinic + service
     public ClinicServiceBean findByClinicAndService(int clinicId, int serviceId) throws SQLException {
         String sql = "SELECT * FROM clinic_services WHERE clinic_id = ? AND service_id = ? AND is_active = 1";
         try (Connection connection = DBConnectionUtil.getConnection();

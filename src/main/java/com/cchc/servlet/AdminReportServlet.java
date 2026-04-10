@@ -29,7 +29,6 @@ public class AdminReportServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // check if user is logged in
         HttpSession session = request.getSession(false);
         UserBean user = null;
         if (session != null) {
@@ -47,7 +46,6 @@ public class AdminReportServlet extends HttpServlet {
             return;
         }
 
-        // load clinic list for dropdown
         List<ClinicBean> clinicList = null;
         List<ServiceBean> serviceList = null;
         try {
@@ -59,7 +57,6 @@ public class AdminReportServlet extends HttpServlet {
         request.setAttribute("clinicList", clinicList);
         request.setAttribute("serviceList", serviceList);
 
-        // default to current month and year if not provided
         Calendar now = Calendar.getInstance();
         int defaultMonth = now.get(Calendar.MONTH) + 1;
         int defaultYear = now.get(Calendar.YEAR);
@@ -89,10 +86,8 @@ public class AdminReportServlet extends HttpServlet {
                 year = Integer.parseInt(yStr);
             }
         } catch (Exception e) {
-            // keep defaults
         }
 
-        // pick first clinic if none selected
         if (clinicId <= 0 && clinicList != null && clinicList.size() > 0) {
             clinicId = clinicList.get(0).getClinicId();
         }
@@ -103,7 +98,6 @@ public class AdminReportServlet extends HttpServlet {
         request.setAttribute("selMonth", month);
         request.setAttribute("selYear", year);
 
-        // simple calculation for report
         if (clinicId > 0) {
             try {
                 int utilRate = dao.getUtilisationRate(clinicId, serviceId, month, year);
@@ -124,14 +118,12 @@ public class AdminReportServlet extends HttpServlet {
             }
         }
 
-        // overall summary counts
         try {
             request.setAttribute("userCount", dao.getUserCount());
             request.setAttribute("apptCount", dao.getAppointmentCount());
             request.setAttribute("queueCount", dao.getTodayQueueCount());
             request.setAttribute("notiCount", dao.getUnreadNotificationCount());
         } catch (SQLException e) {
-            // ignore
         }
 
         request.getRequestDispatcher("/admin/reports.jsp").forward(request, response);

@@ -76,7 +76,6 @@ public class JoinQueueServlet extends HttpServlet {
 
             Date d = new Date(System.currentTimeMillis());
 
-            // simple duplicate check
             boolean hasTicket = qDao.hasActiveTicket(p.getUserId(), staff.getClinicId(), cs.getServiceId(), d);
             if (hasTicket) {
                 response.sendRedirect(request.getContextPath() + "/staff/queue?err=You+already+have+active+queue+ticket+for+this+service+today");

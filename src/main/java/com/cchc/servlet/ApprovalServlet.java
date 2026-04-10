@@ -34,7 +34,6 @@ public class ApprovalServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // simple staff check
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -94,7 +93,6 @@ public class ApprovalServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // simple staff action
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");

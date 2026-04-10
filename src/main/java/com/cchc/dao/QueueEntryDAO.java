@@ -60,7 +60,6 @@ public class QueueEntryDAO {
         return 0;
     }
 
-    // simple duplicate check
     public boolean hasActiveTicket(int userId, int clinicId, int serviceId, Date today) throws SQLException {
         String sql = "SELECT COUNT(*) c FROM queue_entries q "
                 + "JOIN patient_profiles p ON q.patient_id = p.patient_id "
@@ -125,7 +124,6 @@ public class QueueEntryDAO {
         }
     }
 
-    // simple queue management - get today waiting queue for clinic
     public List<QueueEntryBean> getWaitingQueue(int clinicId) throws SQLException {
         Date today = new Date(System.currentTimeMillis());
         String sql = "SELECT * FROM queue_entries WHERE clinic_id = ? AND queue_date = ? "
@@ -145,12 +143,10 @@ public class QueueEntryDAO {
         return list;
     }
 
-    // simple queue management - update status by queue id
     public boolean updateStatus(int queueId, String status) throws SQLException {
         return updateQueueStatus(queueId, status);
     }
 
-    // simple queue management - get next waiting entry (lowest token_no, WAITING)
     public QueueEntryBean getNextQueueNumber(int clinicId) throws SQLException {
         Date today = new Date(System.currentTimeMillis());
         String sql = "SELECT * FROM queue_entries WHERE clinic_id = ? AND queue_date = ? "
@@ -169,7 +165,6 @@ public class QueueEntryDAO {
         return null;
     }
 
-    // patient queue status for today
     public List<QueueEntryBean> findByPatientAndDate(int patientId, Date queueDate) throws SQLException {
         String sql = "SELECT * FROM queue_entries WHERE patient_id = ? AND queue_date = ? ORDER BY token_no ASC";
         List<QueueEntryBean> list = new ArrayList<>();

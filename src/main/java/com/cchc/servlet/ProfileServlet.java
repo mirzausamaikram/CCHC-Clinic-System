@@ -69,17 +69,14 @@ public class ProfileServlet extends HttpServlet {
         String confirmPassword = request.getParameter("confirmPassword");
 
         try {
-            // update email using UserDAO method
             UserBean u = new UserBean();
             u.setUserId(user.getUserId());
             u.setUsername(user.getUsername());
             u.setEmail(email);
             userDao.updateProfile(u);
 
-            // update phone in patient profile
             pDao.updatePhoneByUserId(user.getUserId(), phone);
 
-            // update password if user typed new password
             if (newPassword != null && !newPassword.isEmpty()) {
                 if (confirmPassword == null || !newPassword.equals(confirmPassword)) {
                     response.sendRedirect(request.getContextPath() + "/patient/profile?msg=Confirm+password+not+match");
@@ -95,7 +92,6 @@ public class ProfileServlet extends HttpServlet {
                 userDao.updatePassword(user.getUserId(), newPassword);
             }
 
-            // update session email
             user.setEmail(email);
             session.setAttribute("loginUser", user);
 

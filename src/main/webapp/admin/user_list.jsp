@@ -1,10 +1,9 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
 <%@page import="com.cchc.model.ClinicBean"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%
-    // simple check
     UserBean user = (UserBean) session.getAttribute("loginUser");
     if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");

@@ -11,13 +11,11 @@ import java.util.List;
 
 public class ServiceDAO {
 
-    // simple method name
     public List<ServiceBean> getAllServices() throws SQLException {
         return findAllActive();
     }
 
     public int addService(ServiceBean service) throws SQLException {
-        // simple insert
         String sql = "INSERT INTO services (service_code, service_name, service_description, default_duration_minutes, is_active) VALUES (?, ?, ?, ?, ?)";
         try (Connection con = DBConnectionUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
@@ -86,7 +84,6 @@ public class ServiceDAO {
         }
     }
 
-    // simple quota helper, fallback when column is not present
     public int getQuotaPerSlot(int serviceId) {
         String sql = "SELECT quota_per_slot FROM services WHERE service_id = ?";
         try (Connection con = DBConnectionUtil.getConnection();
@@ -101,7 +98,6 @@ public class ServiceDAO {
                 }
             }
         } catch (Exception e) {
-            // ignore and use fallback
         }
         return 5;
     }

@@ -21,7 +21,6 @@ public class UserManagementServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // check admin login
         HttpSession session = request.getSession(false);
         UserBean user = null;
         if (session != null) {
@@ -40,7 +39,6 @@ public class UserManagementServlet extends HttpServlet {
         }
 
         try {
-            // get data from database
             List<UserBean> list = dao.getAllUsers();
             request.setAttribute("list", list);
         } catch (SQLException e) {

@@ -1,10 +1,9 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="java.util.List"%>
 <%@page import="com.cchc.model.NotificationBean"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%@taglib prefix="cchc" uri="http://cchc/tags" %>
 <%
-    // simple check
     UserBean user = (UserBean) session.getAttribute("user");
     if (user == null) {
         user = (UserBean) session.getAttribute("loginUser");

@@ -78,7 +78,6 @@ public class PatientProfileDAO {
         return 0;
     }
 
-    // simple profile update
     public boolean updatePhoneByUserId(int userId, String phone) throws SQLException {
         String sql = "UPDATE patient_profiles SET phone = ? WHERE user_id = ?";
         try (Connection con = DBConnectionUtil.getConnection();

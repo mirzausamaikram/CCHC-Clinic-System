@@ -12,7 +12,6 @@ public class UnreadCountTag extends SimpleTagSupport {
 
     @Override
     public void doTag() throws JspException, IOException {
-        // simple tag
         Object obj = getJspContext().findAttribute("loginUser");
         if (obj == null) {
             obj = getJspContext().findAttribute("user");

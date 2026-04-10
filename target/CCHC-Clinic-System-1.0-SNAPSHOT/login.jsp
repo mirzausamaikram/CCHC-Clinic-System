@@ -1,6 +1,5 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.cchc.model.UserBean"%>
-<%-- using JSP Action for bean management --%>
 <jsp:useBean id="user" class="com.cchc.model.UserBean" scope="session" />
 <jsp:setProperty name="user" property="*" />
 <%

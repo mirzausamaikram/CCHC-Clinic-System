@@ -26,58 +26,46 @@
 </head>
 <body>
     <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
-    <h2>My Account Profile</h2>
-    <p>Role: <%= role %></p>
-
-    <% if (msg != null) { %>
-    <p><%= msg %></p>
-    <% } %>
-
-    <form method="post" action="<%= request.getContextPath() %>/account/profile">
-        <table border="1" cellpadding="5" cellspacing="0">
-            <tr>
-                <td>Username</td>
-                <td><input type="text" name="username" value="<%= user.getUsername() == null ? "" : user.getUsername() %>" required /></td>
-            </tr>
-            <tr>
-                <td>Email</td>
-                <td><input type="email" name="email" value="<%= user.getEmail() == null ? "" : user.getEmail() %>" required /></td>
-            </tr>
-            <% if ("PATIENT".equals(role)) { %>
-            <tr>
-                <td>Phone</td>
-                <td><input type="text" name="phone" value="<%= (patientProfile != null && patientProfile.getPhone() != null) ? patientProfile.getPhone() : "" %>" /></td>
-            </tr>
+    <div class="page">
+        <div class="panel">
+            <% if (msg != null) { %>
+            <div class="notice success"><%= msg %></div>
             <% } %>
-            <tr>
-                <td>Current Password</td>
-                <td><input type="password" name="currentPassword" /></td>
-            </tr>
-            <tr>
-                <td>New Password</td>
-                <td><input type="password" name="newPassword" /></td>
-            </tr>
-            <tr>
-                <td>Confirm Password</td>
-                <td><input type="password" name="confirmPassword" /></td>
-            </tr>
-            <tr>
-                <td colspan="2"><input type="submit" value="Update Profile" /></td>
-            </tr>
-        </table>
-    </form>
-
-    <p>
-        <% if ("PATIENT".equals(role)) { %>
-            <a href="<%= request.getContextPath() %>/patient/dashboard.jsp">Back Dashboard</a>
-        <% } else if ("STAFF".equals(role)) { %>
-            <a href="<%= request.getContextPath() %>/staff/dashboard.jsp">Back Dashboard</a>
-        <% } else { %>
-            <a href="<%= request.getContextPath() %>/admin/dashboard.jsp">Back Dashboard</a>
-        <% } %>
-        |
-        <a href="<%= request.getContextPath() %>/logout">Logout</a>
-    </p>
+            <form method="post" action="<%= request.getContextPath() %>/account/profile">
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Username</label>
+                        <input type="text" name="username" value="<%= user.getUsername() == null ? "" : user.getUsername() %>" required />
+                    </div>
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" name="email" value="<%= user.getEmail() == null ? "" : user.getEmail() %>" required />
+                    </div>
+                    <% if ("PATIENT".equals(role)) { %>
+                    <div class="field">
+                        <label>Phone</label>
+                        <input type="text" name="phone" value="<%= (patientProfile != null && patientProfile.getPhone() != null) ? patientProfile.getPhone() : "" %>" />
+                    </div>
+                    <% } %>
+                    <div class="field">
+                        <label>Current Password</label>
+                        <input type="password" name="currentPassword" />
+                    </div>
+                    <div class="field">
+                        <label>New Password</label>
+                        <input type="password" name="newPassword" />
+                    </div>
+                    <div class="field">
+                        <label>Confirm Password</label>
+                        <input type="password" name="confirmPassword" />
+                    </div>
+                </div>
+                <div class="actions">
+                    <input type="submit" value="Update Profile" />
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
 

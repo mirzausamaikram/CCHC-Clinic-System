@@ -1,8 +1,7 @@
-﻿<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%@taglib prefix="cchc" uri="http://cchc/tags" %>
 <%
-    // simple check - use loginUser first (same order as unreadCount tag)
     UserBean user = (UserBean) session.getAttribute("loginUser");
     if (user == null) {
         user = (UserBean) session.getAttribute("user");
@@ -43,7 +42,6 @@
                 </div>
             </div>
 
-        <!-- simple notification table -->
         <%
             com.cchc.dao.NotificationDAO notiDao = new com.cchc.dao.NotificationDAO();
             java.util.List<com.cchc.model.NotificationBean> recentList = null;

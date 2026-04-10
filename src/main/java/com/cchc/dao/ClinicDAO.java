@@ -26,7 +26,6 @@ public class ClinicDAO {
         return clinics;
     }
 
-    // simple method name
     public List<ClinicBean> getAllClinics() throws SQLException {
         return findAllActive();
     }

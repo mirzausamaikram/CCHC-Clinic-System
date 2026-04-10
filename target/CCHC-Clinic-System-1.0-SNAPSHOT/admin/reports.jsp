@@ -5,7 +5,6 @@
 <%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
 <%
-    // simple check
     UserBean user = (UserBean) session.getAttribute("loginUser");
     if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
@@ -52,7 +51,6 @@
     <p><b><%= msg %></b></p>
     <% } %>
 
-    <!-- simple calculation for report - filter form -->
     <h3>Utilisation Report Filter</h3>
     <form method="get" action="<%= request.getContextPath() %>/admin/reports">
         <table border="0" cellpadding="5">
@@ -127,15 +125,12 @@
 
     <br/>
 
-    <!-- Utilisation Dashboard -->
     <h3>Utilisation Rate</h3>
     <div class="grid" style="align-items:stretch;">
         <div class="panel" style="text-align:center;">
             <p class="muted" style="margin-bottom:8px;">Slot Utilisation</p>
             <svg width="160" height="160" viewBox="0 0 160 160">
-                <!-- background track -->
                 <circle cx="80" cy="80" r="60" fill="none" stroke="var(--border)" stroke-width="16"/>
-                <!-- animated fill arc -->
                 <circle cx="80" cy="80" r="60" fill="none"
                         stroke="var(--brand)" stroke-width="16"
                         stroke-linecap="round"
@@ -165,7 +160,7 @@
     </div>
     <script>
         (function(){
-            var rate = <%= utilRate %>;
+            var rate = Number('<%= utilRate %>');
             var circ = 376.99;
             var offset = circ * (1 - rate / 100);
             window.addEventListener('load', function(){
@@ -211,7 +206,6 @@
 
     <br/>
 
-    <!-- No-Show Summary -->
     <h3>No-Show Summary</h3>
     <div class="grid" style="align-items:stretch;">
         <div class="panel" style="text-align:center;">
@@ -250,10 +244,9 @@
     </div>
     <script>
         (function(){
-            var count = <%= noShow %>;
+            var count = Number('<%= noShow %>');
             var maxCount = 20;
             var circ = 376.99;
-            // arc fills based on count out of maxCount (capped at full circle)
             var fraction = Math.min(count / maxCount, 1);
             var offset = circ * (1 - fraction);
             window.addEventListener('load', function(){
@@ -267,7 +260,6 @@
 
     <br/>
 
-    <!-- overall summary -->
     <h3>Overall Summary</h3>
     <table border="1" cellpadding="5" cellspacing="0">
         <tr><th>Item</th><th>Count</th></tr>

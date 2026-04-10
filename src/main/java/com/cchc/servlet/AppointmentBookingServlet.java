@@ -45,7 +45,6 @@ public class AppointmentBookingServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // simple check
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login");
@@ -133,7 +132,6 @@ public class AppointmentBookingServlet extends HttpServlet {
                     sList.add(s);
                 }
             }
-            // fallback: if no clinic services configured, show all active services
             if (sList.isEmpty()) {
                 sList = sDao.getAllServices();
             }
@@ -144,7 +142,6 @@ public class AppointmentBookingServlet extends HttpServlet {
             request.setAttribute("serviceMap", sMap);
             request.setAttribute("selectedClinicId", clinicId);
 
-            // simple timeslot list
             String selectedDate = request.getParameter("appointmentDate");
             if (selectedDate == null || selectedDate.isEmpty()) {
                 selectedDate = LocalDate.now().toString();
@@ -161,10 +158,9 @@ public class AppointmentBookingServlet extends HttpServlet {
             request.setAttribute("selectedDate", selectedDate);
             request.setAttribute("availableSlots", availableSlots);
 
-            // simple past-slot filter: tell JSP if date is today and what time it is now
             boolean isToday = selectedDate.equals(LocalDate.now().toString());
             request.setAttribute("isToday", isToday);
-            request.setAttribute("currentTime", LocalTime.now().toString().substring(0, 5)); // "HH:mm"
+            request.setAttribute("currentTime", LocalTime.now().toString().substring(0, 5));
 
             request.getRequestDispatcher("/patient/book-appointment.jsp").forward(request, response);
         } catch (SQLException e) {
@@ -196,7 +192,6 @@ public class AppointmentBookingServlet extends HttpServlet {
                 return;
             }
 
-            // simple policy check
             int maxBookings = 3;
             try {
                 String x = setDao.getValue("maxBookingsPerPatient");
@@ -217,7 +212,6 @@ public class AppointmentBookingServlet extends HttpServlet {
                 return;
             }
 
-            // simple read clinic + service IDs from form
             int clinicIdParam = 0;
             try {
                 clinicIdParam = Integer.parseInt(request.getParameter("clinicId"));
@@ -230,7 +224,6 @@ public class AppointmentBookingServlet extends HttpServlet {
             } catch (Exception e) {
                 serviceIdParam = 0;
             }
-            // auto-pick first service for this clinic if none passed
             if (serviceIdParam <= 0 && clinicIdParam > 0) {
                 List<ClinicServiceBean> autoCs = csDao.findByClinicId(clinicIdParam);
                 if (!autoCs.isEmpty()) {
@@ -250,7 +243,6 @@ public class AppointmentBookingServlet extends HttpServlet {
                 return;
             }
 
-            // look up clinic+service to get the correct duration
             int useClinicId = clinicIdParam;
             int useServiceId = serviceIdParam;
             int useDuration = 20;
@@ -272,7 +264,6 @@ public class AppointmentBookingServlet extends HttpServlet {
 
             Date ad = Date.valueOf(d);
 
-            // simple slot conflict check
             java.util.Set<String> bookedSlots = dao.getBookedStartTimes(useClinicId, ad);
             if (bookedSlots.contains(t)) {
                 request.setAttribute("error", "Selected slot already booked");
@@ -290,7 +281,6 @@ public class AppointmentBookingServlet extends HttpServlet {
             appt.setAppointmentDate(LocalDate.parse(d));
             appt.setTimeSlot(st.toString() + "-" + et.toString());
 
-            // simple quota rule: if service is limited, keep as PENDING for staff approval
             boolean limitedQuota = useDuration >= 30;
             int dayCount = dao.countByClinicAndServiceAndDate(useClinicId, useServiceId, ad);
             if (limitedQuota && dayCount >= 5) {
@@ -306,7 +296,6 @@ public class AppointmentBookingServlet extends HttpServlet {
                 NotificationBean n = new NotificationBean();
                 n.setUserId(user.getUserId());
 
-                // simple notification system
                 n.setTitle("Appointment Confirmed");
                 n.setMessage("Your appointment is confirmed for " + d + " at " + t);
                 n.setNotificationType("Appointment Confirmed");

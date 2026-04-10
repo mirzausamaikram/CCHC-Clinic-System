@@ -26,7 +26,6 @@ public class CsvImportServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // simple check
         HttpSession s = request.getSession(false);
         if (s == null || s.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login.jsp");
@@ -39,7 +38,6 @@ public class CsvImportServlet extends HttpServlet {
 
         String act = request.getParameter("action");
         if ("sample".equals(act)) {
-            // simple sample csv download
             response.setContentType("text/csv");
             response.setHeader("Content-Disposition", "attachment; filename=sample_services.csv");
             try (PrintWriter out = response.getWriter()) {

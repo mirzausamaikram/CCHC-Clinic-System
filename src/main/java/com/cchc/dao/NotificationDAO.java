@@ -95,8 +95,6 @@ public class NotificationDAO {
         }
     }
 
-    // simple notification system - get last 5 notifications for user
-    // DATE_FORMAT avoids JDBC timezone conversion errors on created_at
     public List<NotificationBean> getRecentNotifications(int userId) throws SQLException {
         String sql = "SELECT notification_id, user_id, title, message, notification_type, "
                 + "related_appointment_id, is_read, "
@@ -117,7 +115,6 @@ public class NotificationDAO {
                     int rid = rs.getInt("related_appointment_id");
                     bean.setRelatedAppointmentId(rs.wasNull() ? null : rid);
                     bean.setRead(rs.getBoolean("is_read"));
-                    // read timestamp as string - no JDBC conversion needed
                     String createdStr = rs.getString("created_str");
                     try {
                         bean.setCreatedAt(java.sql.Timestamp.valueOf(createdStr));
@@ -131,7 +128,6 @@ public class NotificationDAO {
         return list;
     }
 
-    // simple notification system - quick helper to create a notification
     public void createNotification(int userId, String type, String message) throws SQLException {
         NotificationBean n = new NotificationBean();
         n.setUserId(userId);
@@ -143,7 +139,6 @@ public class NotificationDAO {
         create(n);
     }
 
-    // simple notification system - check if reminder already exists for an appointment
     public boolean reminderExists(int userId, int appointmentId) throws SQLException {
         String sql = "SELECT COUNT(*) c FROM notifications "
             + "WHERE user_id = ? AND related_appointment_id = ? "
@@ -171,7 +166,6 @@ public class NotificationDAO {
         int relatedAppointmentId = rs.getInt("related_appointment_id");
         bean.setRelatedAppointmentId(rs.wasNull() ? null : relatedAppointmentId);
         bean.setRead(rs.getBoolean("is_read"));
-        // read timestamp as string to avoid JDBC timezone conversion errors
         try {
             String s = rs.getString("created_at");
             bean.setCreatedAt(s != null ? java.sql.Timestamp.valueOf(s) : new java.sql.Timestamp(System.currentTimeMillis()));

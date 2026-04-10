@@ -60,7 +60,6 @@ public class ReportDAO {
         return 0;
     }
 
-    // simple calculation for report - count booked (not cancelled) appointments for clinic+month+year(+service)
     private int getBookedCount(int clinicId, int serviceId, int month, int year) throws SQLException {
         String sql = "SELECT COUNT(*) c FROM appointments a "
                 + "WHERE a.clinic_id = ? AND MONTH(a.appointment_date) = ? AND YEAR(a.appointment_date) = ? "
@@ -82,7 +81,6 @@ public class ReportDAO {
         return 0;
     }
 
-    // simple calculation for report - count no-show for clinic+month+year
     public int getNoShowSummary(int clinicId, int serviceId, int month, int year) throws SQLException {
         String sql = "SELECT COUNT(*) c FROM appointments a "
                 + "WHERE a.clinic_id = ? AND MONTH(a.appointment_date) = ? AND YEAR(a.appointment_date) = ? "
@@ -104,9 +102,7 @@ public class ReportDAO {
         return 0;
     }
 
-    // simple calculation for report - total slots = sum(working_mins/duration) per service * days in month
     public int getTotalSlots(int clinicId, int serviceId, int month, int year) throws SQLException {
-        // get clinic opening and closing time
         int workingMinutes = 0;
         String clinicSql = "SELECT opening_time, closing_time FROM clinics WHERE clinic_id = ?";
         try (Connection con = DBConnectionUtil.getConnection();
@@ -116,7 +112,6 @@ public class ReportDAO {
                 if (rs.next()) {
                     java.sql.Time open = rs.getTime("opening_time");
                     java.sql.Time close = rs.getTime("closing_time");
-                    // simple calculation for report - ms to minutes
                     long diff = close.getTime() - open.getTime();
                     workingMinutes = (int) (diff / 60000);
                 }
@@ -126,7 +121,6 @@ public class ReportDAO {
             return 0;
         }
 
-        // add up slots per day across all active services in this clinic
         int slotsPerDay = 0;
         String csSql = "SELECT duration_minutes FROM clinic_services WHERE clinic_id = ? AND is_active = 1 "
                 + "AND (? <= 0 OR service_id = ?)";
@@ -145,7 +139,6 @@ public class ReportDAO {
             }
         }
 
-        // get days in the given month/year
         java.util.Calendar cal = java.util.Calendar.getInstance();
         cal.set(year, month - 1, 1);
         int daysInMonth = cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH);
@@ -153,18 +146,15 @@ public class ReportDAO {
         return slotsPerDay * daysInMonth;
     }
 
-    // simple calculation for report - utilisation rate = (booked / total slots) * 100
     public int getUtilisationRate(int clinicId, int serviceId, int month, int year) throws SQLException {
         int booked = getBookedCount(clinicId, serviceId, month, year);
         int total = getTotalSlots(clinicId, serviceId, month, year);
         if (total <= 0) {
             return 0;
         }
-        // simple calculation for report
         return (booked * 100) / total;
     }
 
-    // compatibility for old calls
     public int getNoShowSummary(int clinicId, int month, int year) throws SQLException {
         return getNoShowSummary(clinicId, 0, month, year);
     }
@@ -178,7 +168,6 @@ public class ReportDAO {
     }
 
     public List<Map<String, Object>> getAppointmentRecords(int clinicId, int serviceId, int month, int year, String status) throws SQLException {
-        // join with patient_profiles, clinics, and services to get names
         String sql = "SELECT a.appointment_id, a.user_id, p.full_name, a.clinic_id, c.clinic_name, "
                 + "a.service_id, s.service_name, a.appointment_date, a.time_slot, a.status "
                 + "FROM appointments a "

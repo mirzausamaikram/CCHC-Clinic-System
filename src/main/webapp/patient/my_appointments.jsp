@@ -4,7 +4,6 @@
 <%@page import="com.cchc.model.AppointmentBean"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%
-    // simple check
     UserBean user = (UserBean) session.getAttribute("user");
     if (user == null) {
         user = (UserBean) session.getAttribute("loginUser");

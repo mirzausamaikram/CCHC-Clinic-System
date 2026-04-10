@@ -24,44 +24,40 @@
 </head>
 <body>
     <%@ include file="/WEB-INF/jspf/role_navbar.jspf" %>
-    <h2>Update Profile</h2>
-
-    <% if (msg != null) { %>
-    <p><%= msg %></p>
-    <% } %>
-
-    <form method="post" action="<%= request.getContextPath() %>/patient/profile">
-        <table border="1" cellpadding="5" cellspacing="0">
-            <tr>
-                <td>Email</td>
-                <td><input type="email" name="email" value="<%= user.getEmail() == null ? "" : user.getEmail() %>" required /></td>
-            </tr>
-            <tr>
-                <td>Phone</td>
-                <td><input type="text" name="phone" value="<%= (p != null && p.getPhone() != null) ? p.getPhone() : "" %>" /></td>
-            </tr>
-            <tr>
-                <td>Current Password</td>
-                <td><input type="password" name="currentPassword" /></td>
-            </tr>
-            <tr>
-                <td>New Password</td>
-                <td><input type="password" name="newPassword" /></td>
-            </tr>
-            <tr>
-                <td>Confirm Password</td>
-                <td><input type="password" name="confirmPassword" /></td>
-            </tr>
-            <tr>
-                <td colspan="2"><input type="submit" value="Update" /></td>
-            </tr>
-        </table>
-    </form>
-
-    <p>
-        <a href="<%= request.getContextPath() %>/patient/dashboard.jsp">Back Dashboard</a> |
-        <a href="<%= request.getContextPath() %>/logout">Logout</a>
-    </p>
+    <div class="page">
+        <div class="panel">
+            <% if (msg != null) { %>
+            <div class="notice success"><%= msg %></div>
+            <% } %>
+            <form method="post" action="<%= request.getContextPath() %>/patient/profile">
+                <div class="form-grid">
+                    <div class="field">
+                        <label>Email</label>
+                        <input type="email" name="email" value="<%= user.getEmail() == null ? "" : user.getEmail() %>" required />
+                    </div>
+                    <div class="field">
+                        <label>Phone</label>
+                        <input type="text" name="phone" value="<%= (p != null && p.getPhone() != null) ? p.getPhone() : "" %>" />
+                    </div>
+                    <div class="field">
+                        <label>Current Password</label>
+                        <input type="password" name="currentPassword" />
+                    </div>
+                    <div class="field">
+                        <label>New Password</label>
+                        <input type="password" name="newPassword" />
+                    </div>
+                    <div class="field">
+                        <label>Confirm Password</label>
+                        <input type="password" name="confirmPassword" />
+                    </div>
+                </div>
+                <div class="actions">
+                    <input type="submit" value="Update" />
+                </div>
+            </form>
+        </div>
+    </div>
 </body>
 </html>
 

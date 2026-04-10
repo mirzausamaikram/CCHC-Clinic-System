@@ -3,7 +3,6 @@
 <%@page import="com.cchc.model.QueueEntryBean"%>
 <%@page import="com.cchc.model.UserBean"%>
 <%
-    // simple session check
     UserBean user = (UserBean) session.getAttribute("loginUser");
     if (user == null) {
         response.sendRedirect(request.getContextPath() + "/login.jsp");
@@ -35,7 +34,6 @@
         <p><b><%= msg %></b></p>
         <% } %>
 
-        <!-- simple queue management - call next button -->
         <form method="post" action="<%= request.getContextPath() %>/staff/queue-progression">
             <input type="hidden" name="action" value="callNext" />
             <input type="submit" value="Call Next" />
@@ -43,7 +41,6 @@
 
         <br/>
 
-        <!-- simple queue management - today queue table -->
         <table border="1" cellpadding="5" cellspacing="0">
             <tr>
                 <th>Token No</th>

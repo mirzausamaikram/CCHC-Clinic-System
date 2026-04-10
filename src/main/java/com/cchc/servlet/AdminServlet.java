@@ -29,7 +29,6 @@ public class AdminServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // simple admin page
         HttpSession s = request.getSession(false);
         if (s == null || s.getAttribute("loginUser") == null) {
             response.sendRedirect(request.getContextPath() + "/login.jsp");
@@ -43,7 +42,6 @@ public class AdminServlet extends HttpServlet {
         }
 
         try {
-            // get data from database
             List<UserBean> list = dao.getAllUsers();
             Map<Integer, String> roleNameMap = new HashMap<>();
             for (int i = 0; i < list.size(); i++) {

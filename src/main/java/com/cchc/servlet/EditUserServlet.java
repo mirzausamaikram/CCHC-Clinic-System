@@ -16,7 +16,6 @@ public class EditUserServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // check admin
         HttpSession session = request.getSession();
         UserBean admin = (UserBean) session.getAttribute("loginUser");
         if (admin == null) {
@@ -27,7 +26,6 @@ public class EditUserServlet extends HttpServlet {
             return;
         }
 
-        // get user ID from param
         String userIdStr = request.getParameter("userId");
         if (userIdStr == null || userIdStr.isEmpty()) {
             response.sendRedirect(request.getContextPath() + "/admin/users");
@@ -52,7 +50,6 @@ public class EditUserServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // check admin
         HttpSession session = request.getSession();
         UserBean admin = (UserBean) session.getAttribute("loginUser");
         if (admin == null) {
@@ -71,14 +68,12 @@ public class EditUserServlet extends HttpServlet {
             String newPassword = request.getParameter("newPassword");
             String confirmPassword = request.getParameter("confirmPassword");
 
-            // validate
             if (email == null || email.isEmpty()) {
                 request.setAttribute("error", "Email is required");
                 doGet(request, response);
                 return;
             }
 
-            // check passwords match if new password provided
             if (newPassword != null && !newPassword.isEmpty()) {
                 if (!newPassword.equals(confirmPassword)) {
                     request.setAttribute("error", "Passwords do not match");
@@ -87,7 +82,6 @@ public class EditUserServlet extends HttpServlet {
                 }
             }
 
-            // update user
             UserDAO dao = new UserDAO();
             boolean updated = dao.updateUser(userId, fullName, email, phone, 
                     (newPassword != null && !newPassword.isEmpty()) ? newPassword : null);
